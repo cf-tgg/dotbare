@@ -1,0 +1,1 @@
+/home/cf/.config/zsh/.zshrc
