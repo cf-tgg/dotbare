@@ -30,6 +30,418 @@ cd() {
     return 0
 }
 
+try_exec(){
+    echo "Trying shell $1"
+    type "$1" > /dev/null 2>&1 && exec "$@"
+}
+
+log(){
+    ts=$(date +"%F_%H%M-%S")
+    logdir="$HOME/.local/var/log"
+    logfile=${LOGFILE:-"$logdir/$1_$ts.log"}
+    echo "$@" >> $logfile
+}
+
+log_file(){
+    log BEGIN "$1"
+    log_file_i=1
+    while IFS= read -r log_file_line; do
+        printf '%5d\t%s\n' "$log_file_i" "$log_file_line"
+        log_file_i=$(($log_file_i+1))
+    done < "$1" >> "$logfile"
+    log END "$1"
+}
+
+warn(){
+    log "WARNING: $*"
+    WARNINGS="${WARNINGS}WARNING: $*\n"
+}
+
+die(){
+    log "$@"
+    echo "$error_color$bold_color$@$reset_color"
+    cat <<EOF
+
+If you think configure made a mistake, make sure you are using the latest
+version from Git.  If the latest version fails, report the problem to the
+ffmpeg-user@ffmpeg.org mailing list or IRC #ffmpeg on irc.libera.chat.
+EOF
+    if disabled logging; then
+        cat <<EOF
+Rerun configure with logging enabled (do not use --disable-logging), and
+include the log this produces with your report.
+EOF
+    else
+        cat <<EOF
+Include the log file "$logfile" produced by configure as this will help
+solve the problem.
+EOF
+    fi
+    exit 1
+}
+
+toupper(){
+    echo "$@" | tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
+}
+
+tolower(){
+    echo "$@" | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
+}
+
+c_escape(){
+    echo "$*" | sed 's/["\\]/\\\0/g'
+}
+
+sh_quote(){
+    v=$(echo "$1" | sed "s/'/'\\\\''/g")
+    test "x$v" = "x${v#*[!A-Za-z0-9_/.+-]}" || v="'$v'"
+    echo "$v"
+}
+
+cleanws(){
+    echo "$@" | sed 's/^ *//;s/[[:space:]][[:space:]]*/ /g;s/ *$//'
+}
+
+filter(){
+    pat=$1
+    shift
+    for v; do
+        eval "case '$v' in $pat) printf '%s ' '$v' ;; esac"
+    done
+}
+
+filter_out(){
+    pat=$1
+    shift
+    for v; do
+        eval "case '$v' in $pat) ;; *) printf '%s ' '$v' ;; esac"
+    done
+}
+
+map(){
+    m=$1
+    shift
+    for v; do eval $m; done
+}
+
+add_suffix(){
+    suffix=$1
+    shift
+    for v; do echo ${v}${suffix}; done
+}
+
+remove_suffix(){
+    suffix=$1
+    shift
+    for v; do echo ${v%$suffix}; done
+}
+
+set_all(){
+    value=$1
+    shift
+    for var in $*; do
+        eval $var=$value
+    done
+}
+
+set_weak(){
+    value=$1
+    shift
+    for var; do
+        eval : \${$var:=$value}
+    done
+}
+
+sanitize_var_name(){
+    echo $@ | sed 's/[^A-Za-z0-9_]/_/g'
+}
+
+set_sanitized(){
+    var=$1
+    shift
+    eval $(sanitize_var_name "$var")='$*'
+}
+
+get_sanitized(){
+    eval echo \$$(sanitize_var_name "$1")
+}
+
+pushvar(){
+    for pvar in $*; do
+        eval level=\${${pvar}_level:=0}
+        eval ${pvar}_${level}="\$$pvar"
+        eval ${pvar}_level=$(($level+1))
+    done
+}
+
+popvar(){
+    for pvar in $*; do
+        eval level=\${${pvar}_level:-0}
+        test $level = 0 && continue
+        eval level=$(($level-1))
+        eval $pvar="\${${pvar}_${level}}"
+        eval ${pvar}_level=$level
+        eval unset ${pvar}_${level}
+    done
+}
+
+request(){
+    for var in $*; do
+        eval ${var}_requested=yes
+        eval $var=
+    done
+}
+
+warn_if_gets_disabled(){
+    for var in $*; do
+        WARN_IF_GETS_DISABLED_LIST="$WARN_IF_GETS_DISABLED_LIST $var"
+    done
+}
+
+enable(){
+    set_all yes $*
+}
+
+disable(){
+    set_all no $*
+}
+
+disable_with_reason(){
+    disable $1
+    eval "${1}_disable_reason=\"$2\""
+    if requested $1; then
+        die "ERROR: $1 requested, but $2"
+    fi
+}
+
+enable_weak(){
+    set_weak yes $*
+}
+
+disable_weak(){
+    set_weak no $*
+}
+
+enable_sanitized(){
+    for var; do
+        enable $(sanitize_var_name $var)
+    done
+}
+
+disable_sanitized(){
+    for var; do
+        disable $(sanitize_var_name $var)
+    done
+}
+
+do_enable_deep(){
+    for var; do
+        enabled $var && continue
+        set -- $var
+        eval enable_deep \$${var}_select
+        var=$1
+        eval enable_deep_weak \$${var}_suggest
+    done
+}
+
+enable_deep(){
+    do_enable_deep $*
+    enable $*
+}
+
+enable_deep_weak(){
+    for var; do
+        disabled $var && continue
+        set -- $var
+        do_enable_deep $var
+        var=$1
+        enable_weak $var
+    done
+}
+
+requested(){
+    test "${1#!}" = "$1" && op="=" || op="!="
+    eval test "x\$${1#!}_requested" $op "xyes"
+}
+
+enabled(){
+    test "${1#!}" = "$1" && op="=" || op="!="
+    eval test "x\$${1#!}" $op "xyes"
+}
+
+disabled(){
+    test "${1#!}" = "$1" && op="=" || op="!="
+    eval test "x\$${1#!}" $op "xno"
+}
+
+enabled_all(){
+    for opt; do
+        enabled $opt || return 1
+    done
+}
+
+disabled_all(){
+    for opt; do
+        disabled $opt || return 1
+    done
+}
+
+enabled_any(){
+    for opt; do
+        enabled $opt && return 0
+    done
+}
+
+disabled_any(){
+    for opt; do
+        disabled $opt && return 0
+    done
+    return 1
+}
+
+set_default(){
+    for opt; do
+        eval : \${$opt:=\$${opt}_default}
+    done
+}
+
+is_in(){
+    value=$1
+    shift
+    for var in $*; do
+        [ $var = $value ] && return 0
+    done
+    return 1
+}
+
+check_deps(){
+    for cfg; do
+        eval [ x\$${cfg}_checking = xdone ] && continue
+        eval [ x\$${cfg}_checking = xinprogress ] && die "Circular dependency for $cfg."
+
+        eval "
+        dep_all=\$${cfg}_deps
+        dep_any=\$${cfg}_deps_any
+        dep_con=\$${cfg}_conflict
+        dep_sel=\$${cfg}_select
+        dep_sgs=\$${cfg}_suggest
+        dep_ifa=\$${cfg}_if
+        dep_ifn=\$${cfg}_if_any
+        "
+
+        # most of the time here $cfg has no deps - avoid costly no-op work
+        if [ "$dep_all$dep_any$dep_con$dep_sel$dep_sgs$dep_ifa$dep_ifn" ]; then
+            eval ${cfg}_checking=inprogress
+
+            set -- $cfg "$dep_all" "$dep_any" "$dep_con" "$dep_sel" "$dep_sgs" "$dep_ifa" "$dep_ifn"
+            check_deps $dep_all $dep_any $dep_con $dep_sel $dep_sgs $dep_ifa $dep_ifn
+            cfg=$1; dep_all=$2; dep_any=$3; dep_con=$4; dep_sel=$5 dep_sgs=$6; dep_ifa=$7; dep_ifn=$8
+
+            [ -n "$dep_ifa" ] && { enabled_all $dep_ifa && enable_weak $cfg; }
+            [ -n "$dep_ifn" ] && { enabled_any $dep_ifn && enable_weak $cfg; }
+            enabled_all  $dep_all || { disable_with_reason $cfg "not all dependencies are satisfied: $dep_all"; }
+            enabled_any  $dep_any || { disable_with_reason $cfg "not any dependency is satisfied: $dep_any"; }
+            disabled_all $dep_con || { disable_with_reason $cfg "some conflicting dependencies are unsatisfied: $dep_con"; }
+            disabled_any $dep_sel && { disable_with_reason $cfg "some selected dependency is unsatisfied: $dep_sel"; }
+
+            enabled $cfg && enable_deep_weak $dep_sel $dep_sgs
+
+            for dep in $dep_all $dep_any $dep_sel $dep_sgs; do
+                # filter out library deps, these do not belong in extralibs
+                is_in $dep $LIBRARY_LIST && continue
+                enabled $dep && eval append ${cfg}_extralibs ${dep}_extralibs
+            done
+        fi
+
+        eval ${cfg}_checking=done
+    done
+}
+
+print_config(){
+    pfx=$1
+    files=$2
+    shift 2
+    map 'eval echo "$v \${$v:-no}"' "$@" |
+    awk "BEGIN { split(\"$files\", files) }
+        {
+            c = \"$pfx\" toupper(\$1);
+            v = \$2;
+            sub(/yes/, 1, v);
+            sub(/no/,  0, v);
+            for (f in files) {
+                file = files[f];
+                if (file ~ /\\.h\$/) {
+                    printf(\"#define %s %d\\n\", c, v) >>file;
+                } else if (file ~ /\\.asm\$/) {
+                    printf(\"%%define %s %d\\n\", c, v) >>file;
+                } else if (file ~ /\\.mak\$/) {
+                    n = -v ? \"\" : \"!\";
+                    printf(\"%s%s=yes\\n\", n, c) >>file;
+                } else if (file ~ /\\.texi\$/) {
+                    pre = -v ? \"\" : \"@c \";
+                    yesno = \$2;
+                    c2 = tolower(c);
+                    gsub(/_/, \"-\", c2);
+                    printf(\"%s@set %s %s\\n\", pre, c2, yesno) >>file;
+                }
+            }
+        }"
+}
+
+print_enabled(){
+    suf=$1
+    shift
+    for v; do
+        enabled $v && printf "%s\n" ${v%$suf}
+    done
+}
+
+append(){
+    var=$1
+    shift
+    eval "$var=\"\$$var $*\""
+}
+
+prepend(){
+    var=$1
+    shift
+    eval "$var=\"$* \$$var\""
+}
+
+reverse () {
+    eval '
+        reverse_out=
+        for v in $'$1'; do
+            reverse_out="$v $reverse_out"
+        done
+        '$1'=$reverse_out
+    '
+}
+
+# keeps the last occurence of each non-unique item
+unique(){
+    unique_out=
+    eval unique_in=\$$1
+    reverse unique_in
+    for v in $unique_in; do
+        # " $unique_out" +space such that every item is surrounded with spaces
+        case " $unique_out" in *" $v "*) continue; esac  # already in list
+        unique_out="$unique_out$v "
+    done
+    reverse unique_out
+    eval $1=\$unique_out
+}
+
+resolve(){
+    resolve_out=
+    eval resolve_in=\$$1
+    for v in $resolve_in; do
+        eval 'resolve_out="$resolve_out$'$v' "'
+    done
+    eval $1=\$resolve_out
+}
+
+
 bescherelle() {
     VERB_DIR=${BESCHERELLE_DIR:-"$HOME/Documents/Bescherelle"}
     [ -d "$VERB_DIR" ] || {
@@ -304,20 +716,17 @@ sync_subs() {
   done
 }
 
-
-freelog() { # monitor directory remaining storage
+# monitor directory remaining storage space
+freelog() {
     dir="$1"
     storage="cryptlvm"
     if [[ -z $dir ]]; then
         echo "Specify a directory. Usage: freelog <dir>"
         exit 1
     else
-        while true; do
-            # Capture the last line of `du -h` output for the specified directory
+        while :; do
             du_output=$(du -h "$dir" | tail -n 1 | awk '{print $1}')
-            # Capture disk usage statistics for "cryptlvm"
             df_output=$(df -h | grep "$storage" | awk '{print "/ " $3," | "$4, $5}')
-            # Combine the outputs and print them on the same line
             output="$du_output $df_output"
             printf '\r%s' "$output"
             sleep 3
@@ -827,50 +1236,11 @@ addalias() {
   alias_f="${XDG_CONFIG_HOME:-$HOME/.config}/shell/aliases"
   ln_cnt=$(wc -l < "$alias_f")
   ln_ellipsis=$((ln_cnt - 8))
-  penultimate_line=$((ln_cnt - 1))
-  sed -i "${penultimate_line}i alias $1=\'$2\'" "$alias_f"
+  printf "alias %s='%s'" "$1" "$2" >> "$alias_f"
   nl -ba "$alias_f" | head -n8 | sed 's/\([0-9]\)/ /' ;
   printf "   (%s) [...]\n" "$ln_ellipsis" ;
   nl -ba "$alias_f" | tail -n4 ;
   source "$alias_f" >/dev/null 2>&1
-}
-
-addmodeline() {
-  f="$1"
-  if [ ! -f "$f" ]; then
-    echo "No valid file specified" >&2
-    return 1
-  fi
-  rpath=$(realpath "$f")
-  if head -n1 "$rpath" | grep -q "^#*" ; then
-    lang="sh"
-  else
-    file=$(basename "$rpath")
-    ext="${file##*.}"
-    lang="${ext:-sh}"
-  fi
-  modeline=${2:-"ts=2:sw=2:sts=2:et:"}
-  mln=" vim: ft=$lang:$modeline"
-  case "$lang" in
-    sh|py) ml="# $mln" ;;
-    c|h|js|cpp|ts) ml="/* $mln */" ;;
-    lua) ml="-- $mln" ;;
-    *) ml="# $mln" ;;
-  esac
-  if ! echo "$ml" >> "$f"; then
-    echo "Error adding modeline" >&2
-    return 1
-  fi
-  ln_cnt=$(wc -l < "$f")
-  if [ "$ln_cnt" -gt 13 ]; then
-    ln_ellipsis=$((ln_cnt - 13))
-    nl -ba "$f" | head -n9
-    printf "\n   (%s) [...]\n\n" "$ln_ellipsis"
-    nl -ba "$f" | tail -n4
-  else
-    nl -ba "$f"
-  fi
-  return 0
 }
 
 fn_echo() {
@@ -882,12 +1252,7 @@ fn_echo() {
 
 addfn() {
   func_f="${XDG_CONFIG_HOME:-$HOME/.config}/shell/functions"
-  ln_cnt=$(wc -l < "$func_f")
   ln_ellipsis=$((ln_cnt - 8))
-  penultimate_line=$((ln_cnt - 1))
-  if [ "$ln_cnt" -lt 2 ]; then
-    penultimate_line=1
-  fi
   func="$*"
   func_escaped=$(printf '%s' "$func" | sed 's/[&/\]/\\&/g')
   # sed -i "${penultimate_line}i \n${func_escaped}" "$func_f"
@@ -899,10 +1264,8 @@ addfn() {
     echo "Error: Sourcing the function file failed. Removing the added function."
     sed -i "/^${func_escaped}$/d" "$func_f"
     echo "$func_name removed from $func_f."
-    addmodeline "$func_f"
     return 1
   fi
-  addmodeline "$func_f" >/dev/null
   head="$(nl -ba "$func_f" | head -n8)"
   ellipsis="$(printf "\n  [%s] (...)\n\n" "$ln_ellipsis")"
   tail="$(nl -ba "$func_f" | tail -n10)"
@@ -1607,10 +1970,6 @@ mkorglinks() {
     find "$d" -type "$t" -iname "${n}*" | sort -t '/' -k 3 | while read -r l ; do f=$(realpath "$l") ; di=$(dirname "$f")  ; n=${l##*/} ; ln=${n%.*} ; printf '[[%s][%s]]\n' "$f" "$ln" ; done ;
 }
 
-toupper(){
-    echo "$@" | tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
-}
-
 for_dir_alphabet_mkorglink() {
    dir="$1" ; typ="$2" ;
    for a in {a..z} ; do
@@ -1628,3 +1987,18 @@ find_ytdirs_sort_prefix() {
 #      printf '* %s\n\n' "$(basename "$(dirname "$d")")"
 #      for_dir_alphabet_mkorglink "$d" l  >> "$HOME/Videos/yt/TOC.org"
 #  done
+
+#  git clone --bare https://bitbucket.org/cf.tty.gg/dotfiles.git $HOME/.dotfiles
+#  dotgit {
+#      [ -d "$HOME/.dotfiles" ] || mkdir -p ~/.dotfiles
+#     /usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME $@
+#  }
+#  dotgit checkout
+#  if [ $? = 0 ]; then
+#    echo "Checked out config.";
+#  else
+#      echo "Backing up pre-existing dot files.";
+#      config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} ~/.dotfiles/{}
+#  fi
+#  dotgit checkout
+#  dotgit status.showUntrackedFiles no
