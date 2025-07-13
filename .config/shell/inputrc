@@ -1,0 +1,215 @@
+$include /etc/inputrc
+
+# General Options
+
+set bell-style none
+
+set input-meta on
+set convert-meta off
+set output-meta on
+
+# Enhanced Color & Completion
+
+set show-all-if-ambiguous on
+set visible-stats on
+set print-completions-horizontally on
+set colored-completion-prefix on
+set completion-query-items 0
+set colored-stats on
+set menu-complete-display-prefix on
+set enable-active-region on
+
+set editing-mode vi
+
+$if mode=vi
+
+set show-mode-in-prompt on
+
+# Beam for insert
+set vi-ins-mode-string "\1\e[6 q\2"
+
+# Block for command
+set vi-cmd-mode-string "\1\e[2 q\2"
+
+# -------------------------
+# vi-command keymap
+# -------------------------
+set keymap vi-command
+
+# Emacs-like navigation
+
+Control-a: beginning-of-line
+Control-e: end-of-line
+Control-b: backward-char
+Control-f: forward-char
+
+Control-k: kill-line
+Control-d: delete-char
+Control-h: backward-delete-char
+Control-t: transpose-chars
+Control-u: unix-line-discard
+Control-w: backward-kill-word
+Control-y: yank
+Control-_: undo
+Control-/: undo
+Control-g: abort
+Control-q: quoted-insert
+Control-v: quoted-insert
+Control-SPC: set-mark
+
+DEL: backward-delete-char
+Meta-a: beginning-of-line
+
+# Completion
+
+TAB: complete
+Meta-/: glob-complete-word
+Meta-?: possible-completions
+Meta-*: insert-completions
+Meta-=: possible-completions
+
+# History and Args
+
+Meta-.: yank-last-arg
+Meta-_: yank-last-arg
+
+"\C-x(":  start-kbd-macro
+"\C-x)":  end-kbd-macro
+"\C-xe":  call-last-kbd-macro
+
+"\M-\C-y":  yank-nth-arg
+"\C-x\C-r": re-read-init-file
+"\C-x\C-x": exchange-point-and-mark
+"\C-x\C-?": backward-kill-line
+
+# Word operations
+
+Meta-b: backward-word
+Meta-f: forward-word
+Meta-d: kill-word
+Meta-Backspace: backward-kill-word
+Meta-i: beginning-of-line
+Meta-t: transpose-words
+Meta-c: capitalize-word
+Meta-u: upcase-word
+Meta-l: downcase-word
+
+"\M-d": "vdw"
+"\M-o": "O"
+"\C-o": "o"
+
+"\M-C": capitalize-word
+"\M-D": kill-word
+"\M-F": forward-word
+"\M-L": downcase-word
+"\M-T": transpose-words
+"\M-U": upcase-word
+"\M-Y": yank-pop
+
+# Misc features
+"\M-\C-g": abort
+"\M-\C-h": backward-kill-word
+"\M-\C-i": tab-insert
+"\M-\C-r": revert-line
+"\M-SPC": set-mark
+"\M-#":   insert-comment
+"\M-&":   tilde-expand
+"\M-~":   tilde-expand
+"\M-<":   beginning-of-history
+"\M->":   end-of-history
+"\M-N":   non-incremental-forward-search-history
+"\M-P":   non-incremental-reverse-search-history
+"\M-\\":  delete-horizontal-space
+
+# -------------------------
+# vi-insert keymap
+# -------------------------
+set keymap vi-insert
+
+# Emacs-like navigation
+Control-a: beginning-of-line
+Control-e: end-of-line
+Control-b: backward-char
+Control-f: forward-char
+Control-k: kill-line
+Control-d: delete-char
+Control-h: backward-delete-char
+Control-t: transpose-chars
+Control-u: unix-line-discard
+Control-w: backward-kill-word
+Control-y: yank
+Control-_: undo
+Control-/: undo
+Control-g: abort
+Control-q: quoted-insert
+Control-v: quoted-insert
+Control-o: "\n"
+
+# Completion
+
+TAB: complete
+DEL: backward-delete-char
+
+Meta-/: glob-complete-word
+Meta-?: possible-completions
+Meta-*: insert-completions
+Meta-=: possible-completions
+
+# History and Args
+Meta-.: yank-last-arg
+Meta-_: yank-last-arg
+
+"\M-\C-y": yank-nth-arg
+"\C-x\C-r": re-read-init-file
+"\C-x\C-x": exchange-point-and-mark
+
+# Word operations
+Meta-b: backward-word
+Meta-f: forward-word
+Meta-d: kill-word
+Meta-a: beginning-of-line
+Meta-Backspace: backward-kill-word
+Meta-t: transpose-words
+Meta-c: capitalize-word
+Meta-u: upcase-word
+Meta-l: downcase-word
+
+"\C-o": "\ESC\o"
+"\M-O": "\C-a\ESC\O"
+"\M-C": capitalize-word
+"\M-D": kill-word
+"\M-F": forward-word
+"\M-L": downcase-word
+"\M-T": transpose-words
+"\M-U": upcase-word
+"\M-Y": yank-pop
+
+# Misc features
+"\M-\C-g": abort
+"\M-\C-h": backward-kill-word
+"\M-\C-i": tab-insert
+"\M-\C-j": vi-editing-mode
+"\M-\C-m": vi-editing-mode
+"\M-\C-r": revert-line
+"\M-SPC": set-mark
+"\M-#": insert-comment
+"\M-&": tilde-expand
+"\M-~": tilde-expand
+"\M-<": beginning-of-history
+"\M->": end-of-history
+"\M-N": non-incremental-forward-search-history
+"\M-P": non-incremental-reverse-search-history
+"\M-\\": delete-horizontal-space
+
+$endif
+
+# -------------------------
+# Bash-specific extras
+# -------------------------
+$if Bash
+"\C-xp": "PATH=${PATH}\e\C-e\C-a\ef\C-f"
+"\C-x\"": "\"\"\C-b"
+"\C-x\\": "\\"
+"\C-xq": "\eb\"\ef\""
+"\M-\C-v": "\C-a\C-k$\C-y\M-\C-e\C-a\C-y="
+$endif

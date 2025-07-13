@@ -1,0 +1,32 @@
+#!/usr/bin/zsh
+
+BROWSERS=(
+  brave
+  firefox
+  chromium
+  librewolf
+  qutebrowser
+  tor-browser-launcher
+  firefox-developers-edition
+)
+
+ELVIS=(
+  google
+  duckduckgo
+  archwiki
+  wikipedia
+  youtube
+  discogs
+  imdb
+)
+
+_dsurfraw() {
+    set -e
+    sr --elvi
+
+
+    reply=("$@")
+
+}
+
+compdef _dsurfraw dsurfraw

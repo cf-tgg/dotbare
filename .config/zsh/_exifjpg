@@ -1,0 +1,31 @@
+#compdef exifjpg
+
+_arguments -s -S \
+  '-S+[Separator: set field separator]:separator string:' \
+  '-A[Enable all output]' '+A[Enable all output]' \
+  '-C[Enable comments]' '+C[Enable comments]' \
+  '-M[Enable MPVSTR mode]' '+M[Enable MPVSTR mode]' \
+  '-F[Print key names]' '+F[Print key names]' \
+  '-c[Channel]' '+c[Channel]' \
+  '-d[Description]' '+d[Description]' \
+  '-D[Upload date]' '+D[Upload date]' \
+  '-E[Uploader thumbnail]' '+E[Uploader thumbnail]' \
+  '-e[Uploader ID]' '+e[Uploader ID]' \
+  '-f[Follower count]' '+f[Follower count]' \
+  '-g[Duration]' '+g[Duration]' \
+  '-U[Uploader URL]' '+U[Uploader URL]' \
+  '-H[Channel URL]' '+H[Channel URL]' \
+  '-I[Playlist index]' '+I[Playlist index]' \
+  '-i[Video ID]' '+i[Video ID]' \
+  '-J[Date]' '+J[Date]' \
+  '-l[Like count]' '+l[Like count]' \
+  '-L[Chapters]' '+L[Chapters]' \
+  '-P[Playlist]' '+P[Playlist]' \
+  '-N[Comment count]' '+N[Comment count]' \
+  '-R[Resolution]' '+R[Resolution]' \
+  '-S[Duration string]' '+S[Duration string]' \
+  '-T[Thumbnail]' '+T[Thumbnail]' \
+  '-t[Title]' '+t[Title]' \
+  '-u[URI]' '+u[URI]' \
+  '-s[Timestamp]' '+s[Timestamp]' \
+  '*:filename:_files'

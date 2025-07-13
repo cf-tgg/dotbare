@@ -1,0 +1,60 @@
+#!/bin/sh
+# -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
+
+
+termcmd=${TERMINAL:-st}
+device_list='sonos\nhd440\nlaurence\nkeychron\nfrancoSoundBar\nchambly'
+
+DMENU=0
+FZF=0
+
+[ -t 1 ] && FZF=1
+[ -t 0 ] || DMENU=1
+
+if [ $# -lt 1 ]; then
+    if [ $FZF -eq 1 ] && command -v fzf >/dev/null 2>&1; then
+        set -- $(printf "$device_list" | fzf --multi)
+    elif command -v fzf >/dev/null 2>&1 && [ -n "$termcmd" ]; then
+        tmpfile=$(mktemp) || exit 1
+        trap 'rm -f "$tmpfile"' EXIT HUP INT TERM QUIT
+        "$termcmd" -e sh -c "printf '$device_list' | fzf --multi > '$tmpfile'; read -r _"
+        [ -s "$tmpfile" ] && set -- $(cat "$tmpfile") || {
+                printf 'No selection made.\n' >&2
+                exit 1
+            }
+    elif command -v dmenu >/dev/null 2>&1; then
+        argv=$(printf "$device_list" | dmenu -p 'BT Dev.:')
+        [ -n "$argv" ] && set -- "$argv" || {
+                printf 'No selection made.\n' >&2
+                exit 1
+            }
+    else
+        printf 'No usable selection tool found.\n' >&2
+        exit 1
+    fi
+fi
+
+cnt=0
+argc=$#
+
+for d in "$@"; do
+    cnt=$((cnt+1))
+    printf '%d/%d\tBT connection to: %s ... ' $cnt $argc "$d"
+    case "$d" in
+        s*) # sonos
+            { bluetoothctl connect "F0:F6:C1:D1:B9:74" >/dev/null && printf 'done' ; } || { printf 'failed' >&2 ; continue ; } ;;
+        h*)  # hd440
+            { bluetoothctl connect "00:16:94:25:13:35" >/dev/null && printf 'done' ; } || { printf 'failed' >&2 ; continue ; } ;;
+        l*)  # laurece btk
+            { bluetoothctl connect "16:77:6F:3E:2C:EE" >/dev/null && printf 'done' ; } || { printf 'failed' >&2 ; continue ; } ;;
+        k*)  # kc
+            { bluetoothctl connect "DC:2C:26:0C:F0:5F" >/dev/null && printf 'done' ; } || { printf 'failed' >&2 ; continue ; } ;;
+        f*)  # francoSB
+            { bluetoothctl connect "54:15:89:92:1B:52" >/dev/null && printf 'done' ; } || { printf 'failed' >&2 ; continue ; } ;;
+        c*)  # chamblySB
+            { bluetoothctl connect "C4:30:18:AE:2A:C3" >/dev/null && printf 'done' ; } || { printf 'failed' >&2 ; continue ; } ;;
+        *)  continue ;;
+    esac
+done
+
+exit 0

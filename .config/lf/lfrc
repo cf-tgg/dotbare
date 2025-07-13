@@ -1,0 +1,289 @@
+# lfrc --- lf configuration file -*- mode: sh -*-
+#
+# + Note on Image Previews
+#   For those wanting image previews, like this system, there are four steps to
+#   set it up. These are done automatically for LARBS users, but I will state
+#   them here for others doing it manually.
+#
+# 1. ueberzug must be installed.
+# 2. The scope file (~/config/lf/scope for me), must have a command similar to
+#    mine to generate ueberzug images.
+# 3. A `set cleaner` line as below is a cleaner script.
+# 4. lf should be started through a wrapper script (~/.local/bin/lfub for me)
+#    that creates the environment for ueberzug. This command can be be aliased
+#    in your shellrc (`alias lf="lfub") or if set to a binding, should be
+#    called directly instead of normal lf.
+
+# Basic vars
+set shellopts '-eu'
+set ifs "\n"
+set scrolloff 10
+set icons
+set period 1
+set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml:vimwiki:c:sc:qtb:package-lock.json:rfc:#*"
+set cleaner '~/.config/lf/cleaner'
+set previewer '~/.config/lf/scope'
+set autoquit true
+set mouse true
+
+# cmds/functions
+cmd open ${{
+    case $(file --brief --dereference --mime-type "$f") in
+	application/vnd.openxmlformats-officedocument.spreadsheetml.sheet) localc $fx ;;
+	image/vnd.djvu|application/pdf|application/postscript) setsid -f zathura $fx >/dev/null 2>&1 ;;
+        text/*|application/json|inode/x-empty|application/x-subrip) $EDITOR $fx ;;
+	image/x-xcf) setsid -f gimp "$f" >/dev/null 2>&1 ;;
+	image/svg+xml) display -- "$f" ;;
+        image/jpeg) rotdir $f | setsid -f nsxiv -aio 2>/dev/null 2>&1 ;;
+        image/*) rotdir $f | grep -i "\.\(png\|jpg\|jpeg\|gif\|webp\|avif\|tif\|ico\)\(_large\)*$" |
+		setsid -f nsxiv -aio 2>/dev/null | while read -r file; do
+		       [ -z "$file" ] && continue
+		       lf -remote "send select \"$file\""
+		       lf -remote "send toggle"
+		   done &
+		 ;;
+	audio/*|video/x-ms-asf) setsid -f mpv "$f" -quiet --audio-display=embedded-first ;;
+	video/*) setsid -f mpv "$f" -quiet >/dev/null 2>&1 ;;
+	application/pdf|application/vnd.djvu|application/epub*)
+            setsid -f zathura "$fx" >/dev/null 2>&1
+            xdotool key super+4 ;;
+	application/pgp-encrypted) $EDITOR "$fx" ;;
+	application/vnd.openxmlformats-officedocument.wordprocessingml.document|application/vnd.oasis.opendocument.text|application/vnd.openxmlformats-officedocument.spreadsheetml.sheet|application/octet-stream|application/vnd.oasis.opendocument.spreadsheet|application/vnd.oasis.opendocument.spreadsheet-template|application/vnd.openxmlformats-officedocument.presentationml.presentation|application/vnd.oasis.opendocument.presentation-template|application/vnd.oasis.opendocument.presentation|application/vnd.ms-powerpoint|application/vnd.oasis.opendocument.graphics|application/vnd.oasis.opendocument.graphics-template|application/vnd.oasis.opendocument.formula|application/vnd.oasis.opendocument.database) setsid -f libreoffice "$fx" >/dev/null 2>&1 ;;
+        *) for f in "$fx"; do setsid -f $OPENER "$f" >/dev/null 2>&1 ; done ;;
+    esac
+}}
+
+# cmd bulkrename ${{
+#     tmpfile_old="$(mktemp)"
+#     tmpfile_new="$(mktemp)"
+#     [ -n "$fs" ] && fs=$(basename -a $fs) || fs=$(ls)
+#     echo "$fs" > "$tmpfile_old"
+#     echo "$fs" > "$tmpfile_new"
+#     $EDITOR "$tmpfile_new"
+#     [ "$(wc -l < "$tmpfile_old")" -eq "$(wc -l < "$tmpfile_new")" ] || { rm -f "$tmpfile_old" "$tmpfile_new"; exit 1; }
+#     paste "$tmpfile_old" "$tmpfile_new" | while IFS="$(printf '\t')" read -r src dst
+#     do
+#         [ "$src" = "$dst" ] || [ -e "$dst" ] || mv -- "$src" "$dst"
+#     done
+#     rm -f "$tmpfile_old" "$tmpfile_new"
+#     lf -remote "send $id unselect"
+# }}
+
+cmd extract ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	printf "%s\n\t" "$fx"
+	printf "extract?[y/N]"
+	read -r ans
+	[ "$ans" = "y" ] && {
+		case $fx in
+			*.tar.bz2)   tar xjf $fx     ;;
+			*.tar.gz)    tar xzf $fx     ;;
+			*.bz2)       bunzip2 $fx     ;;
+			*.rar)       unrar e $fx     ;;
+			*.gz)        gunzip $fx      ;;
+			*.tar)       tar xf $fx      ;;
+			*.tbz2)      tar xjf $fx     ;;
+			*.tgz)       tar xzf $fx     ;;
+			*.zip)       unzip $fx       ;;
+			*.Z)         uncompress $fx  ;;
+			*.7z)        7z x $fx        ;;
+			*.tar.xz)    tar xf $fx      ;;
+		esac
+	} || return
+}}
+
+cmd delete ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	printf "%s\n\t" "$fx"
+	printf "delete?[y/N]"
+	read -r ans
+	[ "$ans" = "y" ] && rm -rf -- $fx || return
+}}
+# dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-dirs | fzf | sed 's|~|$HOME|')" &&
+cmd moveto ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	clear; echo "Move destination:"
+	dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ~/.config/shell/bm-dirs | fzf | sed "s|~|$HOME|" | sed "s|${XDG_CONFIG_HOME:-$HOME/.config}|cf|")" &&
+	for x in $fx; do
+		eval mv -iv \"$x\" \"$dest\"
+	done && notify-send "🚚 File(s) moved." "File(s) moved to $dest."
+}}
+# dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-dirs | fzf | sed 's|~|$HOME|')" &&
+
+cmd copyto ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	clear; echo "Copy destination:"
+	dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ~/.config/shell/bm-dirs | fzf | sed "s|~|$HOME|" | sed "s|${XDG_CONFIG_HOME:-$HOME/.config}|cf|")" &&
+	for x in $fx; do
+		eval cp -ivr \"$x\" \"$dest\"
+	done &&
+	notify-send "📋 File(s) copied." "File(s) copies to $dest."
+}}
+
+cmd mkd ${{
+   set -f
+   printf "mkd: " ;
+   read -r dir ;
+   [ -n "$dir" ] && mkdir -p "$dir" || true
+}}
+
+cmd setbg "$1"
+
+cmd oil ${{ nvim oil://"$(pwd)" ; }}
+cmd dragndrop ${{ xdrag "$fx" ; }}
+cmd xdrag ${{ setsid -f xdrag "$fx" >/dev/null 2>&1 ; }}
+cmd droptarget ${{  output=$(dragndrop -p --target --and-exit) && mpv --playlist="$output" || mpv "$output"  }}
+# cmd mpvdropx ${{ setsid -f mpvdropx >/dev/null 2>&1 ; }}
+
+cmd xiv ${{
+    channel="$(exifjpg -c "$f" 2>/dev/null)" || channel="$(basename "$(dirname "$f")")"
+    icon="$HOME/Pictures/icons/dunst_icons/ytchannels/$channel.png" ;
+    [ -f "$icon" ] || ytup "$(exifjpg -u "$f")" ;
+    notify-send -a "ytdlp" -i "$icon" -r 9999 -t 3000 "$channel" "[m]|[MBTN3] mark/add playlist\n [CR/LF]: zoom\n [MBTN2]: thumbnail view\n [q]|[Esc]: exit and plays playlist in mpv."
+    playlist="$HOME/Videos/playlists/adhoc/$(date +%Y%m%d_%H%M-%S).m3u8"
+    rotdir "$f" | nsxiv -tio | xargs -0 -I {} exifjpg -M "{}" >> "$playlist"
+    [ -f "$playlist" ] && sed -i "1i #EXT3MU" "$playlist" &&
+    setsid -f mpv -quiet --profile=fast --playlist="$playlist" >/dev/null 2>&1
+}}
+
+cmd mpvjpg ${{
+    set -f
+    [ -L "$f" ] && f=$(readlink -f "$f") || f=$(realpath "$f")
+    [ "$(file --dereference --brief --mime-type "$f")" = "image/jpeg" ] || { echo "$f is not a ytjpg target" >&2 ; exit 1 ; }
+    uploader=$(basename "$(dirname "$f")")
+    exifjpg -M "$f" | tee -a "$MPVQ_PLAYLIST" | grep -iE '^#EXTINF' | awk -F '#EXTINF:' '{print $2}' | awk -F, '{print $2}' | while read -r title ; do
+        notify-send -i "$f" -r 9999 "$uploader" "$title added to mpvq playlist." || echo "$uploader - $title added to $MPVQ_PLAYLIST"
+    done
+    update_playlist_titles
+    pkill -RTMIN+15 "${STATUSBAR:-dwmblocks}"
+}}
+
+cmd nautilus ${{ setsid -f nautilus "$(pwd)" >/dev/null 2>&1 ; }}
+cmd readjpg ${{ setsid -f nsxiv-wrapper "$f" >/dev/null 2>&1 ; }}
+
+cmd addmpv ${{
+   for f in "$fx" ; do
+       exifjpg -M "$f" >> "$HOME/.cache/mpvq/mpvq.m3u8"
+   done
+   grep -E '^#EXTINF:' "$HOME/.cache/mpvq/mmpvq.m3u8" | sed '/\(^#EXTINF:[^,]*,\)\(.*\)\(,[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}\)/\2/' > "$HOME/.cache/mpvq.titles"
+   MPCOUNT=$(grep -c . "$HOME/.cache/mpvq.titles")
+   export MPCOUNT
+   pkill -RTMIN+9 "${STATUSBAR:-dwmblocks}"
+}}
+
+cmd dragf ${{ xdrag "$fx" ; }}
+
+cmd dnddrop ${{
+    setsid -f dndhandler >/dev/null 2>&1
+    sleep 0.2; wmctrl -r 'dragon' -e 10,600,2,420,42
+}}
+
+cmd mpvsend ${{
+   for f in "$fx"; do
+	 mpvsend "$f" >/dev/null 2>&1
+   done
+}}
+
+cmd editcmd ${{
+     w="$WINDOWID" ; export w ; xdo hide "$w" ;
+     emc "$fx" || true
+     xdo show "$w"
+}}
+
+cmd change_mode ${{
+    set -f
+    t=$(printf "\$chmod 0 %s" "$f")
+    { sleep 0.1 ; xdotool type "${t}" && sleep 0.1 && xdotool key ctrl+a alt+f alt+f ; } >/dev/null 2>&1
+}}
+
+cmd ytcomments ${{
+      ytcomments "$fx" -E
+}}
+
+# Bindings
+map <c-f> $lf -remote "send $id select \"$(fzf)\""
+map J $lf -remote "send $id cd $(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-dirs | fzf)"
+map gh                           # unset [g]o [h]ome in favor of:
+map g top                        # [g] top | [G] bottom
+map D delete
+map E extract
+map C copyto
+map M moveto
+map <c-m> push :mkdir<space>-pv<space>
+map <c-r> :search-prev;search
+map <c-s> :search-next;search
+map ( reload
+map ) set hidden!            # [s]how hidden
+map <enter> open
+map m
+map m :toggle; down
+map <backspace2> :up; toggle
+map x $$f
+map X !$f
+# map o &mimeopen "$f"
+
+map o &linkhandler "$f"
+map O $mimeopen --ask "$f"
+
+map p
+map P paste "$fx"
+map n down                       # [n]ext
+map p up                         # [p]rev
+map <c-n> down                   # [n]ext
+map <c-p> up                     # [p]rev
+map c push A<c-u>                # [c]hange
+map A :rename; cmd-end           # [A]ppend Line
+map I :rename; cmd-home          # [I]nsert Line
+map i :rename                    # [i]nsert
+map a :rename; cmd-right         # [a]ppend
+map b $setbg "$f"
+map B oil
+map DD delete
+map M change_mode
+map - ytcomments
+map + push :mkdir<space>""<left>
+map V push :!nvim<space> # [V]im
+map W $emc .
+map e
+map e editcmd
+map <c-e> $emc "$fx"
+
+map Y $printf "%s" "$fx" | shell_escape | xclip -selection clipboard # [U]RL ?
+map <c-u> $printf "%s" "$fx" | sed 's/.*\///' | xclip -selection clipboard # [u]RL?
+map . $printf "%s" "$fx" | sed -E 's/^.+\[/https:\/\/www.youtube.com\/watch?v=/' | sed -E 's/\]\..+//' | xclip -selection clipboard  # Youtube pipe?
+# map <gt> $printf "%s" "$fx" | sed -E 's/^.+\[/https:\/\/piped.video\/watch?v=/' | sed -E 's/\]\..+//' | xclip -selection clipboard   # pipe to piped?!
+map T $nsxiv -t "$(pwd)"   # Pictures in [T]humbnail mode
+map <c-c> clear
+map <esc> clear ; unselect ;
+map u unselect ; clear ;
+
+map <c-l> $linkhandler "$f"
+map <c-j> $ytjpg "$f"
+map <c-k> xiv "$fx"
+map <c-m> addmpv "$fx"
+map <c-a> mpvjpg "$fx"
+map <lt> $ytcomments "$f"
+
+# map <c-h> pcmanfm "$(pwd)"
+
+map <c-v> xdrag ; clear      # [d]rag xmouse
+map <c-x> $mpvsd "$f"        # [x] playlist
+map <c-t> dnddrop            # [t]arget
+# map <c-t> mpvdropx         # [t]arget
+map <m-3> dragf "$fx"        # [3]rd mouse button drag
+
+map <f-10> $nautilus "$(pwd)"
+map <f-11> mpvsend "$fx"
+map <c-g> &mpvsend "$fx"
+
+map <f-8> &fzhsync "$fx"
+map <gt> $fzhsync "$fx"
+
+# Source Bookmarks
+source "~/.config/lf/shortcutrc"
+
+# vim: ft=sh:sw=2:ts=2:sts=2:et:

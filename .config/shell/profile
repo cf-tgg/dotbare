@@ -1,0 +1,152 @@
+#!/bin/sh
+# -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
+# shellcheck disable=SC2155
+# Time-stamp: <2025-07-09 09:16:37 cf>
+
+# Add all sub-directories of `$HOME/.local/bin` to $PATH
+export PATH="$(find "$HOME/.local/bin" -type d -exec printf "{}:" \; )$PATH"
+
+unsetopt PROMPT_SP 2>/dev/null
+
+# Default programs
+export TERMINAL="st"
+export TERMINAL_PROG="st"
+export TERM="st-256color"
+
+export BROWSER="qutebrowser"
+export MANPAGER="nvim +Man!"
+export WTTRURL="fr.wttr.in"
+export CRYPTOURL="rate.sx"
+export HISTFILE="${XDG_DATA_HOME:-$HOME/.local/share}/history"
+
+# ~ clean-up
+export HOME="/home/cf"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_STATE_HOME="$HOME/.local/state"
+
+export XINITRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc"
+export EXWMRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc.exwm"
+export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
+export INPUTRC="${XDG_CONFIG_HOME:-$HOME/.config}/shell/inputrc"
+
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export TMUX_TMPDIR="${XDG_RUNTIME_DIR}"
+
+# export XAUTHORITY="${XDG_RUNTIME_DIR}/Xauthority" # this line makes things more complicated
+
+export GNUPGHOME="${XDG_DATA_HOME:-$HOME/.local/share}/gnupg"
+export SUDO_ASKPASS="$HOME/.local/bin/dmenupass"
+export PASSWORD_STORE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/password-store"
+
+export EMACS_SERVER_FILE="${XDG_RUNTIME_DIR:-/run/user/1000}/emacs/server"
+export EMACS_SOCKET_NAME="${XDG_RUNTIME_DIR:-/run/user/1000}/emacs/server"
+export ALTERNATE_EDITOR=""
+export VISUAL="emc"
+export EDITOR="emacsclient"
+
+export GTK2_RC_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-2.0/gtkrc-2.0"
+export QT_QPA_PLATFORMTHEME="qt6ct"
+export AWT_TOOLKIT="MToolkit wmname LG3D"
+export _JAVA_AWT_WM_NONREPARENTING=1
+export MOZ_USE_XINPUT2=1
+export GDK_SCALE=1
+export GTK_THEME="Adwaita-dark"
+
+export MAIL="$HOME/.local/mail"
+export MBSYNCRC="${XDG_CONFIG_HOME:-$HOME/.config}/mu4e/mbsyncrc"
+export WGETRC="${XDG_CONFIG_HOME:-$HOME/.config}/wget/wgetrc"
+export WINEPREFIX="${XDG_DATA_HOME:-$HOME/.local/share}/wineprefixes/default"
+export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
+export DOCKER_CONFIG="${XDG_DATA_HOME:-$HOME/.local/share}/docker"
+export SQLITE_HISTORY="${XDG_DATA_HOME:-$HOME/.local/share}/sqlite_history"
+export ANDROID_SDK_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/android"
+
+# export ANSIBLE_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/ansible/ansible.cfg"
+# export NOTMUCH_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/notmuch-config"
+# export PYTHONSTARTUP="${XDG_CONFIG_HOME:-$HOME/.config}/python/pythonrc"
+# export ELECTRUMDIR="${XDG_DATA_HOME:-$HOME/.local/share}/electrum"
+# export UNISON="${XDG_DATA_HOME:-$HOME/.local/share}/unison"
+# export KODI_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/kodi"
+# export DICS="/usr/share/stardict/dic/"
+# export SDCV_DATA_DIR="$HOME/Documents/Dicts/"
+
+export SDCV_DATA_DIR="/usr/share/stardict/dic/"
+export BESCHERELLE_DIR="$HOME/Documents/Bescherelle"
+export SURFRAW="/usr/lib/surfraw"
+
+export NODE_PATH="${XDG_DATA_HOME:-$HOME/.local/share}/node_modules"
+export NVM_BIN="${XDG_DATA_HOME:-$HOME/.local/share}/.nvm/versions/node/v22.6.0/bin"
+export NVM_INC="${XDG_DATA_HOME:-$HOME/.local/share}/.nvm/versions/node/v22.6.0/include/node"
+export NVM_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/.nvm"
+
+# export LUA_PATH='/usr/share/lua/5.4/?.lua;/usr/share/lua/5.4/?/init.lua;./?.lua;/home/cf/.luarocks/share/lua/5.4/?.lua;/home/cf/.luarocks/share/lua/5.4/?/init.lua'
+# export LUA_CPATH='/usr/lib/lua/5.4/?.so;./?.so;/home/cf/.luarocks/lib/lua/5.4/?.so'
+
+PATH="${XDG_DATA_HOME:-$HOME/.local/share}/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="${XDG_DATA_HOME:-$HOME/.local/share}/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"${XDG_DATA_HOME:-$HOME/.local/share}/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=${XDG_DATA_HOME:-$HOME/.local/share}/perl5"; export PERL_MM_OPT;
+
+export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
+export GOMODCACHE="${XDG_CACHE_HOME:-$HOME/.cache}/go/mod"
+export GOBIN="${XDG_DATA_HOME:-$HOME/.local/share}/go/bin"
+export GO111MODULE="on"
+
+###{{{
+export LESS="R"
+export LESS_TERMCAP_mb="$(printf '%b' '[1;31m')"
+export LESS_TERMCAP_md="$(printf '%b' '[1;36m')"
+export LESS_TERMCAP_me="$(printf '%b' '[0m')"
+export LESS_TERMCAP_so="$(printf '%b' '[01;44;33m')"
+export LESS_TERMCAP_se="$(printf '%b' '[0m')"
+export LESS_TERMCAP_us="$(printf '%b' '[1;32m')"
+export LESS_TERMCAP_ue="$(printf '%b' '[0m')"
+export LESSOPEN="| /usr/bin/highlight -O ansi %s 2>/dev/null"
+#}}}
+
+export FZF_DEFAULT_OPTS="--ansi --layout=reverse --height='100%' --border --color"
+export INFO_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/info.conf.d"
+export INFO_INIT_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/shell/infoinitrc"
+
+export PATH="$PATH:$HOME/.local/src/gnulib:$CARGO_HOME/bin:$SURFRAW:$GOBIN:$NODE_PATH:$NVM_BIN"
+export TTS_MODEL="fr_FR-gilles-low"
+export VDPAU_DRIVER="radeonsi"
+
+# GnuPG
+gpg-connect-agent updatestartuptty /bye >/dev/null
+GPG_TTY=$(tty)
+
+export GPG_TTY
+SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+export SSH_AUTH_SOCK
+
+export ULOGS="$HOME/.local/var/log"
+
+logins() {
+    l="${ULOGS}/logins.log"
+    t=$(date +"%F %T")
+    u=$(id -u)
+    g=$(id -g)
+    i=$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{print $2}')
+    set -- "$t" "$i" "$u" "$g"
+    printf "[%s]\t%s\t%d:%d\t%s\n"  "$t" "$i" "$u" "$g" "$USER" >> "$l" 2>/dev/null
+    unset l t i u g
+    return 0
+}
+
+[ -t 1 ] && logins >/dev/null 2>&1
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/shortcutrc" ] && setsid -f shortcutrc >/dev/null 2>&1
+# [ -f "$HOME/.local/bin/mpvq/mpvq_env" ] && . "$HOME/.local/bin/mpvq/mpvq_env" >/dev/null 2>&1
+
+if [ "$(tty)" = "/dev/tty1" ] && [ -z "$DISPLAY" ] ; then
+    exec startx "$XINITRC"
+else
+    if tty | grep -qE "/dev/tty[0-9]" ; then
+        kbd_mode -a
+        printf "keycode 1 = Caps_Lock\nkeycode 58 = Escape\n" | sudo -n loadkeys 2>/dev/null
+        setfont -d
+    fi
+fi
