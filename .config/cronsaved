@@ -1,0 +1,6 @@
+# Backups
+15 11 * * * /home/cf/.local/bin/sys/envwrap sh /home/cf/.local/bin/sys/bup_daily
+30 16 * * 1 /home/cf/.local/bin/sys/envwrap sh /home/cf/.local/bin/sys/bup_weekly
+30 10 25 * * /home/cf/.local/bin/sys/envwrap sh /home/cf/.local/bin/sys/bup_monthly
+30 13 * * * /home/cf/.local/bin/sys/envwrap rsync -a --delete /home/cf/Documents/Backups slws:~/Backups/fw
+00 10 * * * /home/cf/.local/bin/sys/envwrap sh /home/cf/.local/bin/sys/mailsync
