@@ -1,18 +1,13 @@
 #!/bin/sh
-# -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:sts=2:et:
-
+# -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
+# Time-stamp: <2025-07-16 22:39:01 cf>
 #       _          _ _  __
 #   ___| |__   ___| | |/ _|_ __
 #  / __| '_ \ / _ \ | | |_| '_  \
 #  \__ \ | | |  __/ | |  _| | | |
 #  |___/_| |_|\___|_|_|_| |_| |_|
 #
-#                   ~[shell functions]
-
-#
-#
-#
-
+#                        ~shellfn
 
 mkd() { for d in "$@"; do  mkdir -pv "$d" ; done ; }
 mkcd() { d="$1"; mkdir -pv "$d" && cd "$d" || return 1 ; return 0 ; }
@@ -1214,7 +1209,7 @@ is_urljpg() {
         return 0
 }
 
-grpecho() { grep -qE "$1" "$2" || echo "$1" >> "$2" ; }
+gecho() { grep -qE "$1" "$2" || echo "$1" >> "$2" ; }
 
 grepecho() {
   op="tee -a"
@@ -1323,7 +1318,7 @@ m3umpsd() {
    rm -f "$u"
 }
 
-hlsfzfsd() {
+hlsfzsd() {
    f="$1"; sd="/tmp/mpv.sock";
    grep -v "#EXT" "$f" | fzf --multi | while read -r e; do
        read -r u
@@ -1620,7 +1615,7 @@ echovars() {
 
 vm() {
     vm_dir="$HOME/Templates/vm"
-    find "$vm_dir" -type f -name "*.conf" | fzf | xargs -I{} quickemu --vm "{}" --display "spice" --width "2256" --height "1504" --fullscreen || return 1 ;
+    find "$vm_dir" -type f -name "*.conf" | fzf | xargs -I{} quickemu --vm "{}" --display "spice" --width "2256" --height "1504" || return 1 ;
     return 0;
 }
 
@@ -1640,8 +1635,8 @@ xswl() {
 }
 
 fc-cache-rv() {
-    fc-cache -rv &
-    sudo fc-cache -rv &
+    (fc-cache -rv && sudo fc-cache -rv && wmreup) || return 1
+    return 0
 }
 
 strprint() {
@@ -1784,7 +1779,7 @@ mkdpl() {
     done
     [ -f "$pl" ] && head -n1 "$pl" | grep -q "#EXTM3U" || sed -i "1i #EXTM3U" "$pl"
     vcount=$(grep -c "#EXTINF" "$pl")
-    if [ -f "$pl"] && [ "$vcount" -gt 1 ]; then
+    if [ -f "$pl" ] && [ "$vcount" -gt 1 ]; then
         printf "%s\t%s\n" "$p" "$pl" | tee -a "$SAVED" && echo "Piped $vcount videos in $p playlist. done."
         unset p pl vcount
     else
@@ -1961,22 +1956,24 @@ exifjpg_extract() {
     exifjpg -FDtgu "$f" | jq -r 'to_entries[] | "\(.key)\t\(.value)"'
     printf 'Path\t%s\n' "$f"
 }
-
 exifjpg2tbl() { f="$1" ; [ -L "$f" ] && f=$(readlink -f "$f") || f=$(realpath "$f") ; exifjpg -S "\t" -Dtgu $f ; printf '\t%s\n' "$f" ; }
 exifjpg2tbl_header() { f="$1" ; h=$(printf 'Date\tTitle\tDuration\tUri\tThumbnail\n') ; [ -f "$f" ] || echo "$h" > "$f" ; [ "$(head -n 1 "$f")" = "$h" ] || sed -i "1i ${h}" "$f" ; }
 
 mkorglinks() {
     d="$1" ; t="$2" ; n="$3"
-    find "$d" -type "$t" -iname "${n}*" | sort -t '/' -k 3 | while read -r l ; do f=$(realpath "$l") ; di=$(dirname "$f")  ; n=${l##*/} ; ln=${n%.*} ; printf '[[%s][%s]]\n' "$f" "$ln" ; done ;
+    find "$d" -type "$t" -iname "${n}*" | sort -t '/' -k 3 | while read -r l ; do
+        f=$(realpath "$l") ; n=${f##*/} ; ln=${n%.*} ; printf '[[%s]]\n[[%s][%s]]\n' "$f" "$f" "$ln"
+    done
 }
 
-for_dir_alphabet_mkorglink() {
-   dir="$1" ; typ="$2" ;
+for_dir_alphabet_mkorgln() {
+   dir="$1" ; dn=$(basename "$(dirname "$dir")")
+   printf "\n* %s\n\n" "$dn"
    for a in {a..z} ; do
        A=$(toupper "$a")
        printf '** %s\n' "$A"
-       mkorglinks "$dir" "$typ" "$a"
-    done
+       mkorglinks "$dir" l "$a"
+   done
 }
 
 find_ytdirs_sort_prefix() {

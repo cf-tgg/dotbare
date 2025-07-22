@@ -1,7 +1,6 @@
 #!/bin/sh
 # -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
 
-
 termcmd=${TERMINAL:-st}
 device_list='sonos\nhd440\nlaurence\nkeychron\nfrancoSoundBar\nchambly'
 

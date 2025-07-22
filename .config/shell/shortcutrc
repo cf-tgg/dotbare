@@ -1,4 +1,6 @@
-# vim: filetype=sh
+#!/bin/sh
+# -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
+# Time-stamp: <2025-07-16 22:39:31 cf>
 EDITOR="emc"
 alias \
   D="cd /home/cf/Downloads && ls -A" \

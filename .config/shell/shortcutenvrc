@@ -1,4 +1,6 @@
-# vim: filetype=sh
+#!/bin/sh
+# -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
+# Time-stamp: <2025-07-16 22:37:16 cf>
 [ -n "D" ] && export D="/home/cf/Downloads"
 [ -n "cac" ] && export cac="/home/cf/.cache"
 [ -n "cf" ] && export cf="/home/cf/.config"

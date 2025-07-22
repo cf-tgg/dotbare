@@ -1,3 +1,6 @@
+#!/bin/sh
+# -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
+# Time-stamp: <2025-07-16 22:37:53 cf>
 # These files automatically update when edited/saved in vim:
 
 # keys	filename				description

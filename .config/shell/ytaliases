@@ -1,10 +1,25 @@
 #!/bin/sh
+# -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
+# Time-stamp: <2025-07-16 22:57:57 cf>
 
-# quick edit resource alias
-alias ytaliases='$EDITOR ~/.config/shell/ytaliases && source ~/.config/shell/ytaliases'
+alias ytaliases="$EDITOR ${XDG_CONFIG_HOME:-$HOME/.config}/shell/ytaliases && source ${XDG_CONFIG_HOME:-$HOME/.config}/shell/ytaliases"
 
 # rsync config
-alias sync_ytaliases='rsync ~/.config/shell/ytaliases cf@10.0.0.234:~/; rsync ~/.config/shell/ytaliases cf@10.0.0.203:~/; rsync ~/.config/shell/ytaliases cf@10.0.0.27:~/ 2>/dev/null'
+sync_ytaliases() {
+    hosts="dg3 slw rpie p30 p30m p30s s22"
+    jhosts="dg3 dg3s rdg3"
+    for host in "$hosts" ; do
+        rsync ~/.config/shell/ytaliases "${host}":~/.config/shell/ytaliases 2>/dev/null || {
+            for j in "$jhosts" ; do
+                [ "$host" = "dg3" ] && continue
+                if rsync -e "ssh -J ${j}" ~/.config/shell/ytaliases "${host}":~/.config/shell/ytaliases 2>/dev/null ; then
+                    break
+                fi
+            done
+        }
+    done
+    return 0
+}
 
 # ytfzf
 alias ytf='ytfzf -ft' \
@@ -31,7 +46,7 @@ alias ytf='ytfzf -ft' \
 
 # Radio
 alias ici-premiere='mpv --force-seekable https://rcavliveaudio.akamaized.net/hls/live/2006635/P-2QMTL0_MTL/adaptive_192/chunklist_ao.m3u8' \
-	ici-musique='mp --force-seekable https://rcavliveaudio.akamaized.net/hls/live/2006979/M-7QMTL0_MTL/adaptive_192/chunklist_ao.m3u8' \
+      ici-musique='mp --force-seekable https://rcavliveaudio.akamaized.net/hls/live/2006979/M-7QMTL0_MTL/adaptive_192/chunklist_ao.m3u8' \
 	ici-musique-classique='mpv --force-seekable https://rcavliveaudio.akamaized.net/hls/live/2007000/MUSE/adaptive_192/chunklist_ao.m3u8' \
 	fm97-7='mpv --force-seekable https://rogers-hls.leanstream.co/rogers/gra977.stream/48k/playlist.m3u8' \
 	chom='mpv --force-seekable https://rogers-hls.leanstream.co/rogers/gra977.stream/48k/playlist.m3u8' \
