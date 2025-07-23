@@ -1,0 +1,20 @@
+#!/bin/sh
+# -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
+
+
+userresources="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xresources" || userresources="$HOME/.Xresources"
+
+xrdb "$userresources" &
+xrdbpid="$!"
+
+autostart="picom mpd pipewire remapd unclutter"
+
+for program in $autostart; do
+    [ -n "$(pgrep "$program")" ] || "$program" &
+done >/dev/null 2>&1
+
+[ -n "$xrdbpid" ] && wait "$xrdbpid"
+
+screenconf
+
+[ -n "$(pgrep dunst)" ] || dunst &

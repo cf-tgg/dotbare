@@ -1,0 +1,111 @@
+#!/bin/sh
+# -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
+
+
+xinit_log="$HOME/.local/var/xinit.log"
+[ -d "$(dirname "$xinit_log")" ] || mkdir -p "$(dirname "$xinit_log")"
+
+log() {
+  printf '[%s] [%s] %s\n' "$(date +%F\ %T.%3N)" "$1" "$2" >> "$xinit_log"
+}
+log INIT "$0 starting xinitrc"
+
+prefix="/usr"
+exec_prefix="${prefix}"
+xrdb="xrdb"
+xinitdir="/etc/X11/xinit"
+xclock="xclock"
+xterm="xterm"
+xmodmap="xmodmap"
+
+userresources="$HOME/.Xresources"
+usermodmap="$HOME/.Xmodmap"
+sysresources="$xinitdir/.Xresources"
+sysmodmap="$xinitdir/.Xmodmap"
+
+dwmlog="$HOME/.local/var/log/dwm.0.log"
+[ -d "$(dirname "$dwmlog")" ] || mkdir -p "$(dirname "$dwmlog")"
+
+# merge in defaults and keymaps
+log XRDB "Merging system resources from $sysresources"
+if [ -f "$sysresources" ]; then
+    if [ -x /usr/bin/cpp ] ; then
+        "$xrdb" -merge "$sysresources"
+    else
+        "$xrdb" -nocpp -merge "$sysresources"
+    fi
+fi
+
+log XMODMAP "Loading system modmap from $sysmodmap"
+if [ -f "$sysmodmap" ]; then
+    "$xmodmap" "$sysmodmap"
+fi
+
+log XRDB "Merging user resources from $userresources"
+if [ -L "$userresources" ]; then
+    if [ -x /usr/bin/cpp ] ; then
+        "$xrdb" -merge "$userresources"
+    else
+        "$xrdb" -nocpp -merge "$userresources"
+    fi
+fi
+
+log XMODMAP "Loading user modmap from $usermodmap"
+if [ -f "$usermodmap" ]; then
+    "$xmodmap" "$usermodmap"
+fi
+
+# start some nice programs
+if [ -d "$xinitdir"/xinitrc.d ]; then
+    log XINITRC_D "Running scripts in $xinitdir/xinitrc.d"
+    for f in "$xinitdir/xinitrc.d"/?*.sh ; do
+      	if [ -x "$f" ]; then
+            log XINITRC_D "Sourcing $f"
+            . "$f"
+        fi
+    done
+    unset f
+fi
+
+log XRDB "Merging override xrdb file from ${XDG_CONFIG_HOME:-$HOME/.config}/x11/xresources"
+xrdb "${XDG_CONFIG_HOME:-$HOME/.config}/x11/xresources" &
+xrdbpid=$!
+
+log AUTOSTART "Launching user-defined autostart programs"
+autostart="picom mpd pipewire unclutter dunst remapd"
+for prog in $autostart ; do
+  if pidof -sx "$prog" >/dev/null 2>&1; then
+    log AUTOSTART "Skipping already running: $prog"
+  else
+    log AUTOSTART "Starting: $prog"
+    "$prog" &
+  fi
+done
+
+# for prog in $autostart ; do
+#     pidof -sx "$prog" || "$prog" &
+# done >/dev/null 2>&1
+[ -n "$xrdbpid" ] && wait "$xrdbpid"
+
+# load color profile
+log COLOR "Loading color profile"
+xcalib -d "$DISPLAY" /usr/share/color/icc/BOE_CQ_______NE135FBM_N41_03.icm >/dev/null 2>&1
+
+log HOOK "Running scrncf and redunst"
+scrncf
+redunst
+
+# Activate dbus variable
+log DBUS "Activating DBus environment"
+dbus-update-activation-environment --all
+
+log DBUS "Launching ssh-agent with dwm"
+timestamp=$(date +"%F-%H%M-%S")
+if [ -f "$dwmlog" ] && mv "$dwmlog" "${dwmlog%.0.log}.${timestamp}.log" ; then
+    date +"%A, le %d %B %Y %T" > "$dwmlog"
+fi
+
+log FINAL "Starting dwm"
+exec dbus-launch ssh-agent dwm >"$dwmlog" 2>&1
+
+# startx -- -keeptty >~/.xorg.log 2>&1
