@@ -1,0 +1,20 @@
+audio/*; mpv -quiet %s
+video/*; mpv -quiet %s
+application/ogg; mpv -quiet %s
+application/x-matroska; mpv -quiet %s
+application/x-msvideo; mpv -quiet %s
+text/html; ewww-browse %s
+application/xhtml+xml; ewww-browse %s
+text/plain; emc %s
+text/*; emc %s
+application/json; emc %s
+application/xml; emc %s
+application/javascript; emc %s
+application/x-shellscript; emc %s
+application/x-python; emc %s
+application/x-csrc; emc %s
+application/x-c++src; emc %s
+application/msword; libreoffice --headless --convert-to pdf %s && emc $(basename %s .doc).pdf
+application/vnd.openxmlformats-officedocument.wordprocessingml.document; libreoffice --headless --convert-to pdf %s && emc $(basename %s .docx).pdf
+application/vnd.ms-powerpoint; libreoffice --headless --convert-to pdf %s && emc $(basename %s .ppt).pdf
+application/vnd.openxmlformats-officedocument.presentationml.presentation; libreoffice --headless --convert-to pdf %s && emc $(basename %s .pptx).pdf
