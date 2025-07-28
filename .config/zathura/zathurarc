@@ -12,7 +12,7 @@ map [fullscreen] J zoom out
 map [fullscreen] i recolor
 map [fullscreen] p print
 map [fullscreen] g goto top
-#  -- Options -- 
+#  -- Options --
 # Defines the maximum number of displayed completion entries. 15
 set n-completion-items 30
 # Defines the background color that is used for command line completion entries: #232323
@@ -95,7 +95,7 @@ set index-active-fg "#FFFFFF"
 set index-bg "#121212"
 
 # Defines the foreground color of the index mode.
-set index-fg "#FFFFFF"
+#  set index-fg "#FFFFFF"
 
 # En/Disables aligning to the left internal link targets, for example from the index.
 # set link-hadjust true

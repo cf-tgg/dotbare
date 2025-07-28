@@ -5,3 +5,6 @@
 7198c2736961e1fb06ea4ccbc91560553d00289f 08bf7dd12929becef5971ce7c81e157eff19fc0d cf <cf.gg.tty@hotmail.com> 1752441818 -0400	commit: worked some shell functions
 08bf7dd12929becef5971ce7c81e157eff19fc0d cf7c00626b9ae6297077d7faf86a0d79765687e2 cf <cf.gg.tty@hotmail.com> 1753228654 -0400	commit: pre nix core testing 2025-07-22 19:57:34
 cf7c00626b9ae6297077d7faf86a0d79765687e2 4538480935c09fe2865a788ddeca7c3c83858033 cf <cf.gg.tty@hotmail.com> 1753228681 -0400	commit: pre nix core commit
+4538480935c09fe2865a788ddeca7c3c83858033 3b7e6abcdc9710d528c96f00354c2ba8cff7d1a3 cf <cf.gg.tty@hotmail.com> 1753233186 -0400	commit: add x11 configs
+3b7e6abcdc9710d528c96f00354c2ba8cff7d1a3 fb34f0038d550f3ac19fbd1e24b83e0d5ae7c369 cf <cf.gg.tty@hotmail.com> 1753720881 -0400	commit: added mailcap
+fb34f0038d550f3ac19fbd1e24b83e0d5ae7c369 b0dec152da49436deef9f5b0b318c399c162d21e cf <cf.gg.tty@hotmail.com> 1753721413 -0400	commit: more essentials

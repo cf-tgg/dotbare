@@ -1,11 +1,14 @@
 #!/bin/sh
 # -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
 # shellcheck disable=SC2155
-# Time-stamp: <2025-07-21 12:45:09 cf>
+# Time-stamp: <2025-07-28 12:27:39 cf>
 
 # Add all sub-directories of `$HOME/.local/bin` to $PATH
 export PATH="$(find "$HOME/.local/bin" -type d -exec printf "{}:" \; )$PATH"
 export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
+
+env MANPATH="/home/cf/.nix-profile/share/man:/home/cf/.nix-profile/share/man/man1:/home/cf/.nix-profile/share/man/man5:/home/cf/.nix-profile/share/man/man8:/home/cf/.local/share/.nvm/versions/node/v22.6.0/share/man:/home/cf/.local/share/perl5/man:/home/cf/.nix-profile/share/man:/home/cf/.local/share/man:/usr/local/man:/usr/local/share/man:/usr/share/man:/usr/lib/jvm/default/man" sudo mandb >/dev/null 2>&1
+
 unsetopt PROMPT_SP 2>/dev/null
 
 # Default programs
@@ -20,19 +23,17 @@ export CRYPTOURL="rate.sx"
 export HISTFILE="${XDG_DATA_HOME:-$HOME/.local/share}/history"
 
 # ~ clean-up
-export HOME="/home/cf"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_STATE_HOME="$HOME/.local/state"
-
-export XINITRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc"
-export EXWMRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc.exwm"
-export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
-export INPUTRC="${XDG_CONFIG_HOME:-$HOME/.config}/shell/inputrc"
-
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 export TMUX_TMPDIR="${XDG_RUNTIME_DIR}"
+export INPUTRC="${XDG_CONFIG_HOME:-$HOME/.config}/shell/inputrc"
+export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
+export XINITRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc"
+export STATUSBAR="${XDG_RUNTIME_DIR}/dwmblocks.pid"
+export EXWMRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc.exwm"
 
 # export XAUTHORITY="${XDG_RUNTIME_DIR}/Xauthority" # this line makes things more complicated
 
@@ -69,9 +70,9 @@ export ANDROID_SDK_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/android"
 # export ELECTRUMDIR="${XDG_DATA_HOME:-$HOME/.local/share}/electrum"
 # export UNISON="${XDG_DATA_HOME:-$HOME/.local/share}/unison"
 # export KODI_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/kodi"
+
 # export DICS="/usr/share/stardict/dic/"
 # export SDCV_DATA_DIR="$HOME/Documents/Dicts/"
-
 export SDCV_DATA_DIR="/usr/share/stardict/dic/"
 export BESCHERELLE_DIR="$HOME/Documents/Bescherelle"
 export SURFRAW="/usr/lib/surfraw"
@@ -112,14 +113,13 @@ export FZF_DEFAULT_OPTS="--ansi --layout=reverse --height='100%' --border --colo
 export INFO_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/info.conf.d"
 export INFO_INIT_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/shell/infoinitrc"
 
-export PATH="$PATH:$HOME/.local/src/gnulib:$CARGO_HOME/bin:$SURFRAW:$GOBIN:$NODE_PATH:$NVM_BIN"
+export PATH="$PATH:$CARGO_HOME/bin:$SURFRAW:$GOBIN:$NODE_PATH:$NVM_BIN"
 export TTS_MODEL="fr_FR-gilles-low"
 export VDPAU_DRIVER="radeonsi"
 
 # GnuPG
 gpg-connect-agent updatestartuptty /bye >/dev/null
 GPG_TTY=$(tty)
-
 export GPG_TTY
 SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 export SSH_AUTH_SOCK
@@ -139,7 +139,9 @@ logins() {
 }
 
 [ -t 1 ] && logins >/dev/null 2>&1
-[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/shortcutrc" ] && setsid -f shortcutrc >/dev/null 2>&1
+
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/kbdbin/shortcutrc" ] && setsid -f shortcutrc >/dev/null 2>&1
+
 # [ -f "$HOME/.local/bin/mpvq/mpvq_env" ] && . "$HOME/.local/bin/mpvq/mpvq_env" >/dev/null 2>&1
 
 if [ "$(tty)" = "/dev/tty1" ] && [ -z "$DISPLAY" ] ; then
