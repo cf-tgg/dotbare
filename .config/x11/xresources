@@ -1,5 +1,5 @@
 !  *.alpha: 0.98
-*.font: Iosevka Nerd Font:size=11:antialias=true:autohint=true
+*.font: Iosevka Nerd Font:size=10:antialias=true:autohint=true
 XTerm*disallowedWindowOps: 20,21,SetXprop
 
 Xcursor.theme: Vanilla-DMZ-AA

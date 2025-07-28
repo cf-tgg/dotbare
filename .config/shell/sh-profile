@@ -1,0 +1,116 @@
+#!/usr/bin/env sh ~/.profile
+# -*- mode: sh-mode; sh-shell: dash -*- vim: ft=sh:ts=2:sw=2:norl:et:
+
+PATH="$(find "$HOME/.local/bin" -type d -exec printf "{}:" \; )$PATH" ; export PATH
+PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH" ; export PATH
+
+unsetopt PROMPT_SP 2>/dev/null
+
+TERMINAL="st" ; export TERMINAL
+TERMINAL_PROG="st" ; export TERMINAL_PROG
+TERM="st-256color" ; export TERM
+
+BROWSER="qutebrowser" ; export BROWSER
+MANPAGER="nvim +Man!" ; export MANPAGER
+WTTRURL="fr.wttr.in" ; export WTTRURL
+CRYPTOURL="rate.sx" ; export CRYPTOURL
+
+HISTFILE="${XDG_DATA_HOME:-$HOME/.local/share}/history" ; export HISTFILE
+
+XDG_CONFIG_HOME="$HOME/.config" ; export XDG_CONFIG_HOME
+XDG_DATA_HOME="$HOME/.local/share" ; export XDG_DATA_HOME
+XDG_CACHE_HOME="$HOME/.cache" ; export XDG_CACHE_HOME
+XDG_STATE_HOME="$HOME/.local/state" ; export XDG_STATE_HOME
+
+XINITRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc" ; export XINITRC
+ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh" ; export ZDOTDIR
+
+XDG_RUNTIME_DIR="/run/user/$(id -u)" ; export XDG_RUNTIME_DIR
+TMUX_TMPDIR="${XDG_RUNTIME_DIR}" ; export TMUX_TMPDIR
+STATUSBAR="${XDG_RUNTIME_DIR}/dwmblocks.pid" ; export STATUSBAR
+
+ENV="$HOME/.env" ; export ENV
+ALIASRC="$XDG_CONFIG_HOME/shell/aliasrc" ; export ALIASRC
+INPUTRC="$XDG_CONFIG_HOME/shell/inputrc" ; export INPUTRC
+INFO_INIT_FILE="$XDG_CONFIG_HOME/shell/infoinitrc" ; export INFO_INIT_FILE
+
+GNUPGHOME="${XDG_DATA_HOME:-$HOME/.local/share}/gnupg" ; export GNUPGHOME
+SUDO_ASKPASS="$HOME/.local/bin/dmenupass" ; export SUDO_ASKPASS
+PASSWORD_STORE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/password-store" ; export PASSWORD_STORE_DIR
+
+EMACS_SERVER_FILE="${XDG_RUNTIME_DIR}/emacs/server" ; export EMACS_SERVER_FILE
+EMACS_SOCKET_NAME="${XDG_RUNTIME_DIR}/emacs/server" ; export EMACS_SOCKET_NAME
+ALTERNATE_EDITOR="" ; export ALTERNATE_EDITOR
+VISUAL="emc" ; export VISUAL
+EDITOR="emacsclient" ; export EDITOR
+
+GTK2_RC_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-2.0/gtkrc-2.0" ; export GTK2_RC_FILES
+QT_QPA_PLATFORMTHEME="qt6ct" ; export QT_QPA_PLATFORMTHEME
+AWT_TOOLKIT="MToolkit wmname LG3D" ; export AWT_TOOLKIT
+_JAVA_AWT_WM_NONREPARENTING=1 ; export _JAVA_AWT_WM_NONREPARENTING
+MOZ_USE_XINPUT2=1 ; export MOZ_USE_XINPUT2
+GDK_SCALE=1 ; export GDK_SCALE
+GTK_THEME="Adwaita-dark" ; export GTK_THEME
+
+MAIL="$HOME/.local/mail" ; export MAIL
+MBSYNCRC="${XDG_CONFIG_HOME:-$HOME/.config}/mu4e/mbsyncrc" ; export MBSYNCRC
+WGETRC="${XDG_CONFIG_HOME:-$HOME/.config}/wget/wgetrc" ; export WGETRC
+WINEPREFIX="${XDG_DATA_HOME:-$HOME/.local/share}/wineprefixes/default" ; export WINEPREFIX
+CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo" ; export CARGO_HOME
+DOCKER_CONFIG="${XDG_DATA_HOME:-$HOME/.local/share}/docker" ; export DOCKER_CONFIG
+SQLITE_HISTORY="${XDG_DATA_HOME:-$HOME/.local/share}/sqlite_history" ; export SQLITE_HISTORY
+ANDROID_SDK_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/android" ; export ANDROID_SDK_HOME
+SDCV_DATA_DIR="/usr/share/stardict/dic/" ; export SDCV_DATA_DIR
+BESCHERELLE_DIR="$HOME/Documents/Bescherelle" ; export BESCHERELLE_DIR
+SURFRAW="/usr/lib/surfraw" ; export SURFRAW
+
+NODE_PATH="${XDG_DATA_HOME:-$HOME/.local/share}/node_modules" ; export NODE_PATH
+NVM_BIN="${XDG_DATA_HOME:-$HOME/.local/share}/.nvm/versions/node/v22.6.0/bin" ; export NVM_BIN
+NVM_INC="${XDG_DATA_HOME:-$HOME/.local/share}/.nvm/versions/node/v22.6.0/include/node" ; export NVM_INC
+NVM_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/.nvm" ; export NVM_DIR
+
+PATH="${XDG_DATA_HOME:-$HOME/.local/share}/perl5/bin${PATH:+:${PATH}}"; export PATH
+PERL5LIB="${XDG_DATA_HOME:-$HOME/.local/share}/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB
+PERL_LOCAL_LIB_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT
+PERL_MB_OPT="--install_base \"${XDG_DATA_HOME:-$HOME/.local/share}/perl5\""; export PERL_MB_OPT
+PERL_MM_OPT="INSTALL_BASE=${XDG_DATA_HOME:-$HOME/.local/share}/perl5"; export PERL_MM_OPT
+
+GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go" ; export GOPATH
+GOMODCACHE="${XDG_CACHE_HOME:-$HOME/.cache}/go/mod" ; export GOMODCACHE
+GOBIN="${XDG_DATA_HOME:-$HOME/.local/share}/go/bin" ; export GOBIN
+GO111MODULE="on" ; export GO111MODULE
+
+NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs" ; export NIX_PATH
+
+LESS="R" ; export LESS
+LESS_TERMCAP_mb="$(printf '%b' '[1;31m')" ; export LESS_TERMCAP_mb
+LESS_TERMCAP_md="$(printf '%b' '[1;36m')" ; export LESS_TERMCAP_md
+LESS_TERMCAP_me="$(printf '%b' '[0m')" ; export LESS_TERMCAP_me
+LESS_TERMCAP_so="$(printf '%b' '[01;44;33m')" ; export LESS_TERMCAP_so
+LESS_TERMCAP_se="$(printf '%b' '[0m')" ; export LESS_TERMCAP_se
+LESS_TERMCAP_us="$(printf '%b' '[1;32m')" ; export LESS_TERMCAP_us
+LESS_TERMCAP_ue="$(printf '%b' '[0m')" ; export LESS_TERMCAP_ue
+LESSOPEN="| /usr/bin/highlight -O ansi %s 2>/dev/null" ; export LESSOPEN
+
+FZF_DEFAULT_OPTS="--ansi --layout=reverse --height='100%' --border --color" ; export FZF_DEFAULT_OPTS
+PATH="$PATH:$CARGO_HOME/bin:$SURFRAW:$GOBIN:$NODE_PATH:$NVM_BIN" ; export PATH
+TTS_MODEL="fr_FR-gilles-low" ; export TTS_MODEL
+VDPAU_DRIVER="radeonsi" ; export VDPAU_DRIVER
+
+gpg-connect-agent updatestartuptty /bye >/dev/null
+GPG_TTY=$(tty) ; export GPG_TTY
+SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket) ; export SSH_AUTH_SOCK
+
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/kbdbin/shortcutrc" ] && setsid -f shortcutrc >/dev/null 2>&1
+[ -f "$ENV" ] && . "$ENV" >/dev/null 2>&1
+[ -f "$ALIASRC" ] && . "$ALIASRC" >/dev/null 2>&1
+
+remaps
+
+if tty | grep -qE "/dev/tty[0-9]" ; then
+    kbd_mode -a
+    printf "keycode 1 = Caps_Lock\nkeycode 58 = Escape\n" | sudo -n loadkeys 2>/dev/null
+    setfont -d
+else
+    [ -n "$(tty | while read -r t ; do pgrep dash | xargs ps | grep "${t##/dev/}" ; done)" ] && . ~/.env && rlwrap dash
+fi

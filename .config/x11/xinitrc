@@ -1,8 +1,10 @@
 #!/bin/sh
-# -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-
+# -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
+# Time-stamp: <2025-07-28 12:26:22 cf>
+# Box: cf [Linux 6.15.6-zen1-1-zen x86_64 GNU/Linux]
 
 xinit_log="$HOME/.local/var/xinit.log"
+
 [ -d "$(dirname "$xinit_log")" ] || mkdir -p "$(dirname "$xinit_log")"
 
 log() {
@@ -23,7 +25,10 @@ usermodmap="$HOME/.Xmodmap"
 sysresources="$xinitdir/.Xresources"
 sysmodmap="$xinitdir/.Xmodmap"
 
+ttydev=$(tty)
+
 dwmlog="$HOME/.local/var/log/dwm.0.log"
+
 [ -d "$(dirname "$dwmlog")" ] || mkdir -p "$(dirname "$dwmlog")"
 
 # merge in defaults and keymaps
@@ -95,6 +100,9 @@ log HOOK "Running scrncf and redunst"
 scrncf
 redunst
 
+STATUSBAR="${XDG_RUNTIME_DIR}/dwmblocks.pid"
+export STATUSBAR
+
 # Activate dbus variable
 log DBUS "Activating DBus environment"
 dbus-update-activation-environment --all
@@ -104,6 +112,11 @@ timestamp=$(date +"%F-%H%M-%S")
 if [ -f "$dwmlog" ] && mv "$dwmlog" "${dwmlog%.0.log}.${timestamp}.log" ; then
     date +"%A, le %d %B %Y %T" > "$dwmlog"
 fi
+
+log DWMBLOCKS "Starting dwmblocks on $ttydev"
+dwmblocks &
+barpid=$!
+echo "$barpid" > "$STATUSBAR"
 
 log FINAL "Starting dwm"
 exec dbus-launch ssh-agent dwm >"$dwmlog" 2>&1
