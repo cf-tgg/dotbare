@@ -819,7 +819,7 @@ bindkey "$terminfo[kcud1]" down-line-or-history  # Down arrow
 bindkey "$terminfo[kcuf1]" forward-char          # Right arrow
 bindkey "$terminfo[kcub1]" backward-char         # Left arrow
 
-alias dash='rlwrap dash'
+alias dash='ENV=~/.env rlwrap -n dash'
 
 [ -e /etc/profile.d/nix.sh ] && . /etc/profile.d/nix.sh
 [ "$NIX_PATH" = "nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs" ] || export NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs"

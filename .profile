@@ -1,1 +1,1 @@
-/home/cf/.config/shell/sh-profile
+/home/cf/.config/shell/shrc

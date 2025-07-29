@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
 # shellcheck disable=SC2155
-# Time-stamp: <2025-07-28 12:27:39 cf>
+# Time-stamp: <2025-07-28 13:37:05 cf>
 
 # Add all sub-directories of `$HOME/.local/bin` to $PATH
 export PATH="$(find "$HOME/.local/bin" -type d -exec printf "{}:" \; )$PATH"
