@@ -819,11 +819,16 @@ bindkey "$terminfo[kcud1]" down-line-or-history  # Down arrow
 bindkey "$terminfo[kcuf1]" forward-char          # Right arrow
 bindkey "$terminfo[kcub1]" backward-char         # Left arrow
 
+# Ensure POSIX compliance when switching shell
 alias dash='ENV=~/.env rlwrap -n dash'
 
 [ -e /etc/profile.d/nix.sh ] && . /etc/profile.d/nix.sh
 [ "$NIX_PATH" = "nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs" ] || export NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs"
+
+# dwm blocks statusbar
 export DWMBAR=$(xwininfo -root -tree | grep '("dwm" "dwm")' | awk '{print $1}')
+export DWMBLOCKS=$(cat ${STATUSBAR:-"/run/user/$(id -u)/dwmblocks.pid"})
+
 preexec() { export LAST_CMD="$1" ; }
 
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null

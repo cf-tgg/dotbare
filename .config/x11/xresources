@@ -3,7 +3,7 @@
 XTerm*disallowedWindowOps: 20,21,SetXprop
 
 Xcursor.theme: Vanilla-DMZ-AA
-Xcursor.size: 56
+Xcursor.size: 96
 
 Nsxiv.window.background: #030303
 Nsxiv.window.foreground: #484848
