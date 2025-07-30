@@ -153,7 +153,7 @@ alias monkeytype='cd ~/.local/src/monkeytype/frontend && npm run dev' \
 
 alias cfxmouse='emc ~/.local/src/xmouseless/config.h'
 alias dbind='emc +500:0 ~/.local/src/dwm/config.h'
-alias svls='ls /run/runit/services'
+alias svls='ls /run/runit/service/'
 
 # convert to pdf
 alias mkpdf='localc --verbose --convert-to pdf' \

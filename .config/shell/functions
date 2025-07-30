@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
-# Time-stamp: <2025-07-28 12:15:22 cf>
+# Time-stamp: <2025-07-30 01:07:42 cf>
 #       _          _ _  __
 #   ___| |__   ___| | |/ _|_ __
 #  / __| '_ \ / _ \ | | |_| '_  \
@@ -586,33 +586,30 @@ if echo "$SHELL" | grep -i "zsh" ; then
     compctl -K ttscomp piper 's[-m],[--model]'
 fi
 
-addsv() {
-    svdir="/etc/runit/sv"
-    sv="$1"
-    [ -n "$sv" ] || sv=$(find "$svdir" -maxdepth 1 -type d | fzf --delimiter='/' --with-nth=5)
-    echo "$sv" | grep -q "$svdir" && sv=${sv##*/}
-    [ -d "$svdir/$sv" ] && {
-        sudo ln -sf "${svdir}/${sv}" "/run/runit/service/${sv}"
-    } || { echo "Error: $sv doesn't exist in $svdir" >&2 ; return 1 ; }
-    sv status "$sv"
+svadd() {
+    svs="$@"
+    [ -n "$svs" ] || svs=$(find /etc/runit/sv/ -maxdepth 1 -type d | fzf --delimiter='/' --with-nth=5 --multi) || return 0
+    for sv in $svs ; do
+        svn=${sv##*/}
+        [ -d "/etc/runit/sv/${svn}" ] || { echo "no $svn found in svdir: is it installed?" >&2 ; continue ; }
+        [ ! -L "/run/runit/service/${svn}" ] && sudo ln -sf "/etc/runit/sv/${svn}" "/run/runit/service/${svn}" || { echo "$svn is already linked, continuing.. " >&2 ; continue ; }
+        sv status "$svn" || true
+    done
     return 0
 }
 
-rmsv() {
-    local sv="$1"
-    local svlink="/run/runit/service/${sv}"
-    if [ -z "$sv" ]; then
-        echo "Usage: rmsv <service_name>"
-        return 1
-    fi
-    if [ -L "$svlink" ]; then
-        sudo rm "$svlink"
-        echo "Service ${sv} removed."
-        sv status ${sv} 2>/dev/null
-    else
-        echo "Error: ${svlink} does not exist or is not a symbolic link."
-        return 1
-    fi
+svdown() {
+    find /run/runit/service/ -type l \
+         -not -name "*dbus" \
+         -not -name "*udevd" \
+         -not -name "*NetworkManager" \
+         -not -name "*alsa" |
+        fzf --delimiter='/' --with-nth=5 --multi |
+        while IFS= read -r sv ; do
+            svn=${sv##*/}
+            ( sudo sv stop "$svn" && sudo sv down "$svn" && sudo unlink "$sv" ) || continue
+        done
+    return 0
 }
 
 # basic media editing helpers
