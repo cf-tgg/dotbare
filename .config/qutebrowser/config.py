@@ -120,9 +120,9 @@ c.fonts.web.family.serif = 'CaskaydiaCove Nerd Font Propo'
 c.fonts.web.family.sans_serif = 'CaskaydiaCove Nerd Font'
 c.fonts.web.family.cursive = 'Iosevka Nerd Font Propo'
 c.fonts.web.family.fantasy = 'Fantasque Sans MNerd Font Propo'
-c.fonts.web.size.default = 20
+c.fonts.web.size.default = 16
 c.fonts.web.size.default_fixed = 12
-c.fonts.web.size.minimum = 12
+c.fonts.web.size.minimum = 10
 
 # Bindings for normal mode
 config.bind(',,', 'jseval --quiet --file ~/.config/qutebrowser/userscripts/toggle_visibility.js')
@@ -188,7 +188,7 @@ config.bind('EE', 'fake-key <ctrl+c>;;yank selection;;spawn sleep 0.3;;spawn --d
 config.bind('TT', 'tab-only')
 config.bind('UU', 'edit-text {url}')
 config.bind('WE', 'spawn wikilocale {url} ;; cmd-later 500 open {clipboard}')
-config.bind('Y', 'fake-key <ctrl+c>;;yank selection')
+config.bind('Y', 'fake-key <Ctrl+c>;;yank selection')
 config.bind('d', 'scroll-page 0 0.4')
 config.bind('u', 'scroll-page 0 -0.4')
 config.bind('<Ctrl+n>', 'fake-key <down>')
@@ -197,39 +197,40 @@ config.bind('n', 'fake-key <down>')
 config.bind('p', 'fake-key <up>')
 config.bind('N', 'next-page')
 config.bind('P', 'previous-page')
-config.bind('gT', 'cmd-set-text :tab-give 1')
+config.bind('gT', 'cmd-set-text :tab-give ')
 config.bind('td', 'jseval --quiet --file ~/.config/qutebrowser/userscripts/mkdragelm.js')
 config.bind('tt', 'fake-key <Ctrl+c>;;yank selection;;spawn tts "$(xclip -selection clipboard -o)"')
 config.bind('<Ctrl+g>', 'fake-key <Escape>')
 
 # Bindings for caret mode
 config.bind('EE', 'fake-key <ctrl+c>;;yank selection;;spawn sleep 0.3;;spawn --detach st -e vimclip', mode='caret')
-config.bind('d', 'scroll-page 0 0.4', mode='caret')
+config.bind('d', 'fake-key <down>', mode='caret')
+config.bind('u', 'fake-key <up>', mode='caret')
 config.bind('j', 'move-to-next-line;;scroll-page 0 0.01', mode='caret')
 config.bind('k', 'move-to-prev-line;;scroll-page 0 -0.01', mode='caret')
-config.bind('tt', 'fake-key <ctrl+c>;;yank selection;;spawn tts "$(xclip -selection clipboard -o)" ', mode='caret')
+config.bind('tt', 'fake-key <Ctrl+c>;;yank selection;;spawn tts "$(xclip -selection clipboard -o)" ', mode='caret')
 config.bind('<Ctrl+a>', 'fake-key <Home>', mode='caret')
 config.bind('<Ctrl+e>', 'fake-key <End>', mode='caret')
 config.bind('<Ctrl+f>', 'fake-key <Right>', mode='caret')
 config.bind('<Ctrl+b>', 'fake-key <Left>', mode='caret')
 config.bind('<Ctrl+w>', 'fake-key <Ctrl+x>', mode='caret')
 config.bind('<Ctrl+d>', 'fake-key <Delete>', mode='caret')
-config.bind('<Alt+w>', 'fake-key <Ctrl+c>', mode='caret')
+config.bind('<Alt+w>', 'yank selection;;fake-key <Ctrl+c>', mode='caret')
 config.bind('<Alt+a>', 'fake-key <Ctrl+Home>', mode='caret')
 config.bind('<Alt+f>', 'fake-key <Ctrl+Right>', mode='caret')
 config.bind('<Alt+b>', 'fake-key <Ctrl+Left>', mode='caret')
 config.bind('<Alt+e>', 'fake-key <Ctrl+End>', mode='caret')
 config.bind('<Alt+d>', 'fake-key <Ctrl+Right>;;fake-key <Ctrl+Left>;;fake-key <Ctrl+x>', mode='caret')
 config.bind('<Ctrl+g>', 'mode-leave', mode='caret')
-config.bind('tt', 'fake-key <ctrl+c>;;yank selection;;spawn tts "$(xclip -selection clipboard -o)" ', mode='caret')
+config.bind('tt', 'fake-key <Ctrl+c>;;yank selection;;spawn tts "$(xclip -selection clipboard -o)" ', mode='caret')
 config.bind('u', 'scroll-page 0 -0.4', mode='caret')
 
 # Bindings for command mode
 config.bind('<Alt+c>', 'fake-key <Ctrl+c>', mode='command')
 config.bind('<Alt+m>', 'fake-key <Home>', mode='command')
 config.bind('<Alt+v>', 'fake-key <Ctrl+v>', mode='command')
-config.bind('<Ctrl+->', 'zoom-out', mode='command')
-config.bind('<Ctrl+=>', 'zoom-in', mode='command')
+#  config.bind('<Ctrl+->', 'zoom-out', mode='command')
+#  config.bind('<Ctrl+=>', 'zoom-in', mode='command')
 config.bind('<Ctrl+n>', ':completion-item-focus next', mode='command')
 config.bind('<Ctrl+p>', ':completion-item-focus prev', mode='command')
 config.bind('<Escape>', 'mode-leave', mode='command')
@@ -242,7 +243,6 @@ config.bind('<Escape>', 'mode-leave', mode='insert')
 config.bind('<Ctrl+g>', 'mode-leave', mode='insert')
 config.bind('<Ctrl+->', 'zoom-out', mode='insert')
 config.bind('<Ctrl+=>', 'zoom-in', mode='insert')
-
 config.bind('<Ctrl+Shift+e>', 'scroll-page 0 -0.4', mode='insert')
 config.bind('<Ctrl+Shift+y>', 'scroll-page 0 0.4', mode='insert')
 
@@ -253,9 +253,9 @@ config.bind('<Tab>', 'fake-key <space>;;fake-key <space>;;fake-key <space>;;fake
 config.bind('<Ctrl+Alt+Space>', 'fake-key <Home>;;fake-key <Shift+End>;;fake-key <Ctrl+c>;;fake-key <End>;;fake-key <Return>;;fake-key <Ctrl+v>', mode='insert') # duplicate-line
 
 ## open-line
-config.bind('<Ctrl+o>', 'fake-key <Return>;;fake-key <Up>;;fake-key <End>', mode='insert')
-config.bind('<Alt+o>', 'fake-key <Home>;;fake-key <Return>;;fake-key <Up>', mode='insert')
-config.bind('<Alt+Shift+o>', 'fake-key <End>;;fake-key <Return>', mode='insert')
+config.bind('<Ctrl+o>', 'fake-key <Shift+Return>;;fake-key <Up>;;fake-key <End>', mode='insert')
+config.bind('<Alt+o>', 'fake-key <Home>;;fake-key <Shift+Return>;;fake-key <Up>', mode='insert')
+config.bind('<Alt+Shift+o>', 'fake-key <End>;;fake-key <Shift+Return>', mode='insert')
 
 ## navigation
 config.bind('<Ctrl+a>', 'fake-key <Home>', mode='insert')      # move-to-beginning-of-line
@@ -324,10 +324,8 @@ config.bind('<Alt+d>', 'fake-key <Ctrl+Right>;;fake-key <Ctrl+Shift+Left>;;fake-
 
 ## Control Chars
 config.bind('<Ctrl+i>', 'fake-key <Tab>', mode='insert')
-config.bind('<Tab>', 'fake-key <Tab>', mode='insert')
 config.bind('<Ctrl+Alt+i>', 'fake-key <Backtab>', mode='insert')
-config.bind('<Ctrl+Return>', 'fake-key <Ctrl+Return>', mode='insert')
-config.bind('<Ctrl+m>', 'fake-key <Ctrl+Return>', mode='insert')
+config.bind('<Ctrl+m>', 'fake-key <Return>', mode='insert')
 config.bind('<Ctrl+j>', 'fake-key <Shift+Return>', mode='insert')
 
 # Bindings for passthrough mode
@@ -346,9 +344,9 @@ config.bind('<Tab>', 'fake-key <Tab>', mode='passthrough')
 config.bind('<Ctrl+Alt+Space>', 'fake-key <Home>;;fake-key <Ctrl+Shift+End>;;fake-key <Ctrl+c>;;fake-key <End>;;fake-key <Return>;;fake-key <Ctrl+v>', mode='passthrough') # duplicate-line
 
 ## open-line
-config.bind('<Ctrl+o>', 'fake-key <Return>;;fake-key <Up>;;fake-key <End>', mode='passthrough')
-config.bind('<Alt+o>', 'fake-key <Home>;;fake-key <Return>;;fake-key <Up>;;fake-key <Home>', mode='passthrough')
-config.bind('<Alt+Shift+o>', 'fake-key <End>;;fake-key <Return>', mode='passthrough')
+config.bind('<Ctrl+o>', 'fake-key <Shift+Return>;;fake-key <Up>;;fake-key <End>', mode='passthrough')
+config.bind('<Alt+o>', 'fake-key <Home>;;fake-key <Shift+Return>;;fake-key <Up>;;fake-key <Home>', mode='passthrough')
+config.bind('<Alt+Shift+o>', 'fake-key <End>;;fake-key <Shift+Return>', mode='passthrough')
 
 ## navigation
 config.bind('<Ctrl+a>', 'fake-key <Home>', mode='passthrough')      # move-to-beginning-of-line
@@ -418,7 +416,6 @@ config.bind('<Alt+d>', 'fake-key <Ctrl+Right>;;fake-key <Ctrl+Shift+Left>;;fake-
 config.bind('<Ctrl+i>', 'fake-key <Tab>', mode='passthrough')
 config.bind('<Ctrl+Alt+i>', 'fake-key <Backtab>', mode='passthrough')
 config.bind('<Ctrl+Return>', 'fake-key <Ctrl+Return>', mode='passthrough')
-config.bind('<Ctrl+m>', 'fake-key <Ctrl+Return>', mode='passthrough')
 config.bind('<Ctrl+j>', 'fake-key <Shift+Return>', mode='passthrough')
 
 # Bindings for prompt mode

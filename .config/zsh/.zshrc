@@ -1,13 +1,16 @@
+#!/usr/bin/env zsh
+# -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:et:
+# Time-stamp: <2025-08-01 01:53:06 cf>
+# Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #        __       _          _ _
 #   ___ / _|  ___| |__   ___| | |
 #  / __| |_  / __| '_ \ / _ \ | |
 # | (__|  _| \__ \ | | |  __/ | |
 #  \___|_|   |___/_| |_|\___|_|_|
 #
-#                      cf. [zshrc] ❯
+#                      cf. [zshrc] ❯⟩
 
 autoload -U colors && colors
-
 
 RESET="%{$reset_color%}"
 GRAY="%{$fg[gray]%}"
@@ -166,15 +169,14 @@ d="${XDG_CONFIG_HOME:-$HOME/.config}/shell/shortcutrc"
 e="${XDG_CONFIG_HOME:-$HOME/.config}/shell/shortcutenvrc"
 f="${XDG_CONFIG_HOME:-$HOME/.config}/shell/aliasrc"
 g="${XDG_CONFIG_HOME:-$HOME/.config}/shell/zshnameddirrc"
+h="${XDG_CONFIG_HOME:-$HOME/.config}/shell"
 
-set -- a b c d e f g
-for j in "$a" "$b" "$c" "$d" "$e" "$f" "$g" ; do
-    [ -f "$f" ] && source "$j" >/dev/null 2>&1
+for j in $a $b $c $d $e $f $g ; do
+    [ -f "$j" ] && source "$j" >/dev/null 2>&1
 done
-unset a b c d e f g
+unset a b c d e f g h
 
-ralias() { gpg2 --quiet --no-tty --for-your-eyes-only --decrypt "$(pass ralias)" 2>/dev/null | source /dev/stdin ; }
-
+#  ralias() { gpg2 --quiet --no-tty --for-your-eyes-only --decrypt "$(pass ralias)" 2>/dev/null | source /dev/stdin ; }
 # path check
 export PATH="$(echo "$PATH" | awk -v RS=: -v ORS=: '!a[$1]++' | sed 's/:$//')"
 
@@ -234,7 +236,7 @@ bindkey -M visual S add-surround
 #      done
 #      setsid -f emacsclient - -n -a "" ${args[*]}
 #  }
-#  [ -n "$(pidof -xs emacs)" ] || setsid -f emacsclient --alternate-editor="" -s "${EMACS_SERVER_FILE:-"/run/user/1000/emacs/server"}" -c -F '((name . " srv") (visibility . nil))' >/dev/null 2>&1
+[ -z "$(pidof -xs emacs)" ] && setsid -f emacs -f server-start >/dev/null 2>&1
 
 # Use vim keys in tab complete menu:
 bindkey -M menuselect 'h' vi-backward-char
@@ -471,11 +473,14 @@ is_alias_type() {
     if type "$t" 2>/dev/null | grep -qi 'alias from' ; then
         grep -rn "'${t}='" ~/.config/(shell|zsh) | grep -vE '[~#]' | awk -F ':' '{print $1, $2}' | \
             while read -r f l ; do
-                [ -f "$f" ] && [ "$l" -gt 0 ] && emc +"$l" "$f" || return 1
-            done
+              [ -f "$f" ] && [ -n "$l" ] || continue
+               if emc +"$l" "$f" 2>/dev/null ; then
+                 break
+               fi
+             done
     fi
     unset t
-    return 0
+    return 1
 }
 
 is_fn_type() {
@@ -520,7 +525,9 @@ is_str_type() {
 emtype() {
     t=$(get_last_arg)
     for fn in is_file_type is_which_type is_fn_type is_str_type ; do
-        ( eval "$fn" "$t" 2>/dev/null && return 0 ) || continue
+         if eval "$fn" "$t" ; then
+             break
+         fi
     done
     unset t
     return 0
@@ -814,21 +821,35 @@ bindkey '^X^X' exchange-point-and-mark  # Ctrl-x Ctrl-x (exchange-point-and-mark
 bindkey '^X^E' edit-command-line        # Ctrl-x Ctrl-e (Edit command-line in $EDITOR)
 
 # Ensure arrow keys work
-bindkey "$terminfo[kcuu1]" up-line-or-history    # Up arrow
-bindkey "$terminfo[kcud1]" down-line-or-history  # Down arrow
-bindkey "$terminfo[kcuf1]" forward-char          # Right arrow
-bindkey "$terminfo[kcub1]" backward-char         # Left arrow
+#  bindkey "$terminfo[kcuu1]" up-line-or-history    # Up arrow
+#  bindkey "$terminfo[kcud1]" down-line-or-history  # Down arrow
+#  bindkey "$terminfo[kcuf1]" forward-char          # Right arrow
+#  bindkey "$terminfo[kcub1]" backward-char         # Left arrow
 
-# Ensure POSIX compliance when switching shell
-alias dash='ENV=~/.env rlwrap -n dash'
+# dash POSIX dotfiles + readline keymap
+alias dash="ENV=~/.env rlwrap -n dash"
 
 [ -e /etc/profile.d/nix.sh ] && . /etc/profile.d/nix.sh
-[ "$NIX_PATH" = "nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs" ] || export NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs"
+[ "$NIX_PATH" = "nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs" ] || NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs"
+export NIX_PATH
 
 # dwm blocks statusbar
-export DWMBAR=$(xwininfo -root -tree | grep '("dwm" "dwm")' | awk '{print $1}')
-export DWMBLOCKS=$(cat ${STATUSBAR:-"/run/user/$(id -u)/dwmblocks.pid"})
+#  DWMBAR=$(xwininfo -root -tree | grep '("dwm" "dwm")' | awk '{print $1}')
+#  export DWMBAR
+
+#  ttys=$(w | grep -c "tty[1-9]" 2>/dev/null)
+#  if [ $ttys -gt 1 ]; then
+#      STATUSBAR="$XDG_RUNTIME_DIR/dwmblocks.pid"
+#      export STATUSBAR
+#      barpid=$(pgrep dwmblock | xargs -r ps | grep "${GPG_TTY##*/}" | awk '{print $1}')
+#      [ -n "$barpid" ] && echo "$barpid" > "$STATUSBAR"
+#  fi
+
+STATUSBAR=$(pgrep dwmblock | xargs -r ps | grep ${GPG_TTY##*/} | awk '{print $1}')
+DWMBLOCKS=${STATUSBAR:-"dwmblocks"}
+export DWMBLOCKS
 
 preexec() { export LAST_CMD="$1" ; }
 
+# Fast highlighting plugin
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null

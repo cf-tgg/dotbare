@@ -111,6 +111,8 @@
         ".js-sticky",
         "span .flex",                           /* GPT prompts */
         ".no-draggable",
+        "#page-header",
+        ".header",
         ".relative w-full",
         ".md\\:pt-0",
         ".flex.w-full.items-start",

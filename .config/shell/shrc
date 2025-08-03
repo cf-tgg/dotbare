@@ -1,8 +1,10 @@
-#!/usr/bin/env sh ~/.profile
-# -*- mode: sh-mode; sh-shell: dash -*- vim: ft=sh:ts=2:sw=2:norl:et:
+#!/usr/bin/env sh
+# -*- mode: sh-mode; sh-shell: sh -*- vim: ft=sh:ts=2:sw=2:norl:et:
+# ~/.profile
+# shellcheck disable=SC2155
 
 PATH="$(find "$HOME/.local/bin" -type d -exec printf "{}:" \; )$PATH" ; export PATH
-PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH" ; export PATH
+
 
 unsetopt PROMPT_SP 2>/dev/null
 
@@ -79,7 +81,7 @@ GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go" ; export GOPATH
 GOMODCACHE="${XDG_CACHE_HOME:-$HOME/.cache}/go/mod" ; export GOMODCACHE
 GOBIN="${XDG_DATA_HOME:-$HOME/.local/share}/go/bin" ; export GOBIN
 GO111MODULE="on" ; export GO111MODULE
-
+PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH" ; export PATH
 NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs" ; export NIX_PATH
 
 LESS="R" ; export LESS
@@ -101,16 +103,11 @@ gpg-connect-agent updatestartuptty /bye >/dev/null
 GPG_TTY=$(tty) ; export GPG_TTY
 SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket) ; export SSH_AUTH_SOCK
 
-[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/kbdbin/shortcutrc" ] && setsid -f shortcutrc >/dev/null 2>&1
-[ -f "$ENV" ] && . "$ENV" >/dev/null 2>&1
-[ -f "$ALIASRC" ] && . "$ALIASRC" >/dev/null 2>&1
-
-remaps
-
 if tty | grep -qE "/dev/tty[0-9]" ; then
     kbd_mode -a
     printf "keycode 1 = Caps_Lock\nkeycode 58 = Escape\n" | sudo -n loadkeys 2>/dev/null
     setfont -d
 else
-    [ -n "$(tty | while read -r t ; do pgrep dash | xargs ps | grep "${t##/dev/}" ; done)" ] && . ~/.env && rlwrap dash
+    [ -n "$DISPLAY" ] && remaps
+    [ -n "$(pgrep dash | xargs ps | grep "${GPG_TTY##*/}")" ] && ENV=~/.env rlwrap -n dash -i
 fi

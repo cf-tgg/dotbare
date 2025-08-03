@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
-# Time-stamp: <2025-07-28 12:26:22 cf>
+# Time-stamp: <2025-08-02 18:07:18 cf>
 # Box: cf [Linux 6.15.6-zen1-1-zen x86_64 GNU/Linux]
 
 xinit_log="$HOME/.local/var/xinit.log"
@@ -100,8 +100,6 @@ log HOOK "Running scrncf and redunst"
 scrncf
 redunst
 
-STATUSBAR="${XDG_RUNTIME_DIR}/dwmblocks.pid"
-export STATUSBAR
 
 # Activate dbus variable
 log DBUS "Activating DBus environment"
@@ -112,13 +110,13 @@ timestamp=$(date +"%F-%H%M-%S")
 if [ -f "$dwmlog" ] && mv "$dwmlog" "${dwmlog%.0.log}.${timestamp}.log" ; then
     date +"%A, le %d %B %Y %T" > "$dwmlog"
 fi
-
+DWMBLOCKS="${XDG_RUNTIME_DIR}/dwmblocks.pid"
+export DWMBLOCKS
 log DWMBLOCKS "Starting dwmblocks on $ttydev"
 dwmblocks &
 barpid=$!
-echo "$barpid" > "$STATUSBAR"
+echo "$barpid" > "$DWMBLOCKS"
 
 log FINAL "Starting dwm"
 exec dbus-launch ssh-agent dwm >"$dwmlog" 2>&1
-
 # startx -- -keeptty >~/.xorg.log 2>&1
