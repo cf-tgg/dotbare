@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
-# Time-stamp: <2025-07-30 01:07:42 cf>
+# Time-stamp: <2025-08-05 01:04:12 cf>
 #       _          _ _  __
 #   ___| |__   ___| | |/ _|_ __
 #  / __| '_ \ / _ \ | | |_| '_  \
@@ -552,6 +552,29 @@ trim_if_match() {
     }
   '
 }
+
+greped() {
+  local line=$1
+  local file lineno
+
+  file=${line%%:*}
+  line=${line#*:}
+  lineno=${line%%:*}
+
+  if [[ -n $EDITOR ]]; then
+    case "$EDITOR" in
+      *vim*|*vi*|*emacs*|*micro*|*less*)
+        "$EDITOR" +$lineno "$file"
+        ;;
+      *)
+        "$EDITOR" "$file"
+        ;;
+    esac
+  else
+    echo "\$EDITOR not set"
+  fi
+}
+
 
 # neovim pager width fitting
 vman() {
@@ -1353,8 +1376,9 @@ sort_playlist_bydate() {
     print $2
     if (NF == 3) print $3
   }
-  '
+'
 }
+
 
 dir_name() {
   t="$1"
@@ -1377,15 +1401,18 @@ dir_name() {
 #   echo "$name playlist created."
 # }
 
-error() { cond="$1"; msg="$2" ; eval "$cond" && echo "$msg" && return 1 ; }
+error() {
+    cond="$1"; msg="$2"
+    eval "$cond" && echo "$msg" && return 1
+}
 
 make_playlist() {
   playlist="$1"
-  for f in *; do
+  for f in "$@" ; do
     [ -n $(is_urljpg "$f") ] || continue
     exifjpg -M "$f" >/dev/null 2>&1 | while read -r l; do
        grep "$l" "$playlist" || echo "$l" >> "$playlist"
-      done
+    done
   done
   has_hls_header "$playlist"
   grep "#EXTINF" "$playist" | wc -l
@@ -1421,7 +1448,7 @@ dname() {
   printf 'd=$(dirname "$t")   => dirname:     %s\n' "$d"
   printf 'n=$(basename "$r")  => basename:    %s\n' "$n"
   printf 'dn=$(basename "$d") => dirbasename: %s\n' "$dn"
-  return 0;
+  return 0
 }
 
 for_f() {
@@ -1433,9 +1460,13 @@ for_f() {
   for f in *"$pat"; do "$cmd" "$f" "$arg" 2>/dev/null ; done
 }
 
-f_ext() { f="$1" ; ext=${f##*.} ; [ -n "$ext" ] && echo "$ext" || return 1 ; return 0 ; }
-twitch() { while read -r sub; do ttv "$sub" 2>/dev/null ; done < ~/Videos/ttvsubs ; }
-sce() { # fuzzy script edit
+f_ext() { f="$1" ; ext=${f##*.} ; ([ -n "$ext" ] && echo "$ext") || return 1 ; return 0 ; }
+
+twitch() {
+    ( parallel ::: ttv {} :::: "$HOME/Videos/ttvsubs" ) || true
+}
+
+sce() {
     scpath=${1:-"$HOME/.local/bin"}
     s=("$scpath"/*)
     c="$(print -lnr ${s:t:r} | fzf)"
@@ -1444,11 +1475,12 @@ sce() { # fuzzy script edit
 
 lambda() {
   f="$HOME/.config/shell/functions"
-  n="$1" ; b=$(echo "$*" | cut -d' ' -f2-) ;
+  n="$1" ; b=$(echo "$*" | cut -d' ' -f2-)
   l=$(wc -l < \"$f\"); i=$((l-1))
   fn="${n}() { ${b} ; }"
   sed -i "${i}i $fn" "$f"
-  head -n8 "$f" ; tail -n5 "$f" ;
+  head -n8 "$f" ; tail -n5 "$f"
+
 }
 
 mpsd_loadlist() {
@@ -1456,11 +1488,11 @@ mpsd_loadlist() {
   u="/tmp/m3u8.tmp"
   grep -v "#EXT" "$f" > "$u"
   [ -f "$u" ] && echo '{"command": ["loadlist", "'"$u"'", "append"]}' | socat - "/tmp/mpv.sock" >/dev/null 2>&1
-  rm -f "$u" >/dev/null 2>&1 ;
+  rm -f "$u" >/dev/null 2>&1
 }
 
 sort_playlist_byduration() {
-    playlist="$1" ;
+    playlist="$1"
     awk '
     BEGIN { OFS = "\t" }
     /^#EXTINF/ {
@@ -1484,7 +1516,7 @@ sort_playlist_byduration() {
         print $2
         if (NF == 3) print $3
     }
-    ' ;
+    '
 }
 
 logdbg() {
@@ -1501,6 +1533,7 @@ logdbg() {
     # l=$(wc -l < "$LOGFILE"); i=$((l-3)); sed -i "${i}d" "$LOGFILE" && tail -n1 "$LOGFILE"
     awk '/^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\]/' "$LOGFILE" > "$LOGFILE.tmp" && \
       mv -f "$LOGFILE.tmp" "$LOGFILE" >/dev/null 2>&1 ;
+    return
 }
 
 ff_infojs_embed() {
@@ -1621,7 +1654,7 @@ echovars() {
 vm() {
     vm_dir="$HOME/Templates/vm"
     find "$vm_dir" -type f -name "*.conf" | fzf | xargs -I{} quickemu --vm "{}" --display "spice" --width "2256" --height "1504" || return 1 ;
-    return 0;
+    return 0
 }
 
 xswl() {
@@ -1654,14 +1687,15 @@ strprint() {
     done
     FS=${FS[1]}
     echo "$@" | awk -F"$FS" '{for (i=0;i<=NF;i++) {print "\""$i"\""}}'
+    return 0
 }
 
 svadd() {
-    [ $# -gt 0 ] || { printf "svadd <service>\n\t\t => sudo ln -s /run/runit/sv/<service> /run/runit/service\n" ; return 1 ; };
+    [ $# -gt 0 ] || { printf "svadd <service>\n\t\t => sudo ln -s /run/runit/sv/<service> /run/runit/service\n" ; return 1 ; }
     for sv in "$@" ; do
         [ -n "$sv" ] || { echo "Error while reading service. Got: '${sv}'" ; continue }
         [ -d "/etc/runit/sv/$sv" ] || { echo "Could not find $sv in service directory. Is it installed?" ; continue ; }
-        [ -L "/etc/runit/sv/$sv" ] && { echo "$sv is already linked as running service." ; sudo sv status "$sv" 2>&1 } ; continue  || continue
+        [ -L "/etc/runit/sv/$sv" ] && { echo "$sv is already linked as running service." ; sudo sv status "$sv" 2>&1 ; continue } || continue
         if sudo ln -s /etc/runit/sv/"$sv" /run/runit/service ; then
             sudo sv status "$sv"
         else
@@ -1669,15 +1703,14 @@ svadd() {
         fi
         continue
     done
-    return;
+    return 0
 }
 
-YTZD="$HOME/Videos/playlists/ytzf"
-YTZF="$YTZD/.saved"
+YTZD="$HOME/Videos/playlists/ytzf" ; export YTZD
+YTZF="$YTZD/.saved" ; export YTZF
+
 [ -d "$YTZD" ] || mkdir -p "$YTZD"
 [ -f "$YTZF" ] || touch "$YTZF"
-export YTZD
-export YTZF
 
 fzfbm() {
     pf="${1:-$YTZF}"
@@ -1690,7 +1723,7 @@ fzfbm() {
             setsid -f /usr/bin/mpv -quiet --playlist="$f" 2>&1 || return 1 ;
         fi
     done
-    return;
+    return 0
 }
 
 #  mkpl() {

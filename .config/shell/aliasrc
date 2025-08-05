@@ -36,6 +36,7 @@ alias \
     yta="ytd -x -f bestaudio/best" \
     ytt="ytd --skip-download --get-thumbnail" \
     ytj="ytd --skip-download --write-thumbnail --write-info-json -j" \
+    ytdesc='yt-dlp --ignore-errors --no-abort-on-error --no-warnings --skip-download --get-description' \
     ffmpeg="ffmpeg -hide_banner"
 
 # ColorCmds
@@ -208,3 +209,5 @@ alias docker-clean=' \
   docker volume prune -f '
 
 alias cg='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+
+alias jy='ssh -Y -J rdg3'

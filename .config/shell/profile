@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-08-02 18:08:46 cf>
+# Time-stamp: <2025-08-04 20:48:07 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 # shellcheck disable=SC2155
 
@@ -76,6 +76,7 @@ export ANDROID_SDK_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/android"
 # export SDCV_DATA_DIR="$HOME/Documents/Dicts/"
 export SDCV_DATA_DIR="/usr/share/stardict/dic/"
 export BESCHERELLE_DIR="$HOME/Documents/Bescherelle"
+export MPVQ_PLAYLIST="$HOME/.cache/mpvq/mpvq.m3u8"
 export SURFRAW="/usr/lib/surfraw"
 
 export NODE_PATH="${XDG_DATA_HOME:-$HOME/.local/share}/node_modules"

@@ -31,7 +31,7 @@ emacs.toolBar:0
 emacs.tabBar:0
 emacs.useXIM:off
 emacs.bitmapIcon:off
-!  emacs.minibuffer:minibuffer
+emacs.minibuffer:minibuffer
 
 !  polybar-exwmbar_*.background: #181818
 !  polybar*.background.alpha: 0.9

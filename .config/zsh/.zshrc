@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-08-01 01:53:06 cf>
+# Time-stamp: <2025-08-05 05:14:24 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #        __       _          _ _
 #   ___ / _|  ___| |__   ___| | |
@@ -33,16 +33,17 @@ precmd() {
     PROMPT_SYMBOL_COLOR="$RESET"
   fi
 }
+
 # ❯
-if [[ "$(tty)" == /dev/tty* ]]; then
+if tty | grep -q "tty" ; then
   PS1='%B%{$fg[magenta]%}%~%{$reset_color%} ${PROMPT_SYMBOL_COLOR}>%{$reset_color%}%b '
 else
   PS1='%B%{$fg[magenta]%}%~%{$reset_color%} ${PROMPT_SYMBOL_COLOR}⟩%{$reset_color%}%b '
 fi
 
 setopt autocd
-
 stty stop undef
+
 HISTSIZE=100000
 SAVEHIST=100000
 HISTFILE="$HOME/.cache/zsh/history"
@@ -158,33 +159,22 @@ setopt HIST_NO_FUNCTIONS         # Don't store function definitions
 #     source .zshrc >/dev/null
 # }
 
-MPVQ_PLAYLIST="$HOME/.cache/mpvq/mpvq.m3u8"
-export MPVQ_PLAYLIST
-
-# source adds
-a="${XDG_CONFIG_HOME:-$HOME/.config}/shell/aliases"
-b="${XDG_CONFIG_HOME:-$HOME/.config}/shell/functions"
-c="${XDG_CONFIG_HOME:-$HOME/.config}/shell/ytaliases"
-d="${XDG_CONFIG_HOME:-$HOME/.config}/shell/shortcutrc"
-e="${XDG_CONFIG_HOME:-$HOME/.config}/shell/shortcutenvrc"
-f="${XDG_CONFIG_HOME:-$HOME/.config}/shell/aliasrc"
-g="${XDG_CONFIG_HOME:-$HOME/.config}/shell/zshnameddirrc"
-h="${XDG_CONFIG_HOME:-$HOME/.config}/shell"
-
-for j in $a $b $c $d $e $f $g ; do
-    [ -f "$j" ] && source "$j" >/dev/null 2>&1
-done
-unset a b c d e f g h
-
-#  ralias() { gpg2 --quiet --no-tty --for-your-eyes-only --decrypt "$(pass ralias)" 2>/dev/null | source /dev/stdin ; }
 # path check
 export PATH="$(echo "$PATH" | awk -v RS=: -v ORS=: '!a[$1]++' | sed 's/:$//')"
 
-# base comp dir init
-fpath=(${XDG_CONFIG_HOME:-$HOME/.config}/zsh/ $fpath)
+# load extra configs
+SH_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/shell"
+for j in "$SH_CONFIG"/{aliases,aliasrc,functions,shortcutrc,shortcutenvrc,zshnameddirrc,ytaliases} ; do
+    [ -f "$j" ] && source "$j" >/dev/null 2>&1
+done
 
-# term_splash
+ralias() { gpg2 --quiet --no-tty --for-your-eyes-only --decrypt "$(pass ralias)" 2>/dev/null | source /dev/stdin ; }
 
+ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
+# Base comp dir init
+fpath=($ZDOTDIR $fpath)
+
+# Load zsh completion
 autoload -U compinit
 zstyle ':completion:*' menu select
 zmodload zsh/complist
@@ -218,6 +208,7 @@ zle -N change-surround surround
 bindkey -a cs change-surround
 bindkey -a ds delete-surround
 bindkey -a ys add-surround
+bindkey -a Y vi-yank-eol
 bindkey -M visual S add-surround
 
 #  function emacs {
@@ -236,9 +227,10 @@ bindkey -M visual S add-surround
 #      done
 #      setsid -f emacsclient - -n -a "" ${args[*]}
 #  }
-[ -z "$(pidof -xs emacs)" ] && setsid -f emacs -f server-start >/dev/null 2>&1
 
-# Use vim keys in tab complete menu:
+[ -z "$(pidof -xs emacs)" ] && emacs -f server-start >/dev/null 2>&1
+
+# Use vim keys in tab completion menu
 bindkey -M menuselect 'h' vi-backward-char
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
@@ -247,17 +239,19 @@ bindkey -M menuselect 'b' vi-backward-char
 bindkey -M menuselect 'p' vi-up-line-or-history
 bindkey -M menuselect 'f' vi-forward-char
 bindkey -M menuselect 'n' vi-down-line-or-history
+
 bindkey -v '^?' backward-delete-char
 bindkey -v '^H' backward-delete-char
 
-# Edit line in vim with ctrl-e:
+# Edit line in vim with ctrl-e
 autoload edit-command-line; zle -N edit-command-line
 bindkey '^X^E' edit-command-line
+
 bindkey -M vicmd '^[[P' vi-delete-char
 bindkey -M vicmd '^X^E' edit-command-line
 bindkey -M visual '^[[P' vi-delete
 
-# Change cursor shape for different vi modes.
+# Change cursor shape for different vi modes
 function zle-keymap-select () {
     case $KEYMAP in
         vicmd) echo -ne '\e[1 q';;      # block
@@ -303,33 +297,31 @@ bindkey -M emacs '^[m' __fzf_nova__
 bindkey -M vicmd '^[m' __fzf_nova__
 bindkey -M viins '^[m' __fzf_nova__
 
-toupper(){
+toupper() {
     echo "$@" | tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
 }
 
-tolower(){
+tolower() {
     echo "$@" | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
 }
 
-c_escape(){
+c_escape() {
     echo "$*" | sed 's/["\\]/\\\0/g'
 }
 
-sh_quote(){
+sh_quote() {
     v=$(echo "$1" | sed "s/'/'\\\\''/g")
     test "x$v" = "x${v#*[!A-Za-z0-9_/.+-]}" || v="'$v'"
     echo "$v"
 }
 
-cleanws(){
+cleanws() {
     echo "$@" | sed 's/^ *//;s/[[:space:]][[:space:]]*/ /g;s/ *$//'
 }
 
 copy_lbuffer() {
   emulate -L zsh
-  local buf="${LBUFFER}"
-  { echo "$LBUFFER" | xclip -in -sel clip 2>/dev/null ; } || return 1
-  return 0
+  ( [ -n "$LBUFFER" ] && echo "$LBUFFER" | xclip -in -selection clipboard 2>/dev/null ) || true
 }
 zle -N copy_lbuffer
 bindkey -M viins '^[w' copy_lbuffer
@@ -413,6 +405,8 @@ quoted-lbuffer() {
 zle -N quoted-lbuffer
 bindkey '^[q' quoted-lbuffer
 
+
+
 unescape-lbuffer() {
     LBUFFER=$(printf '%s' "${LBUFFER}" | sed 's/\\//g;s/\\\\/\\/g;') || LBUFFER="${LBUFFER}"
     return
@@ -422,117 +416,42 @@ bindkey -M viins '^X^[\' unescape-lbuffer
 bindkey -M vicmd '^X^[\' unescape-lbuffer
 bindkey -M emacs '^X^[\' unescape-lbuffer
 
-# get_last_arg() {
-#   emulate -L zsh
-#   local buf="${LBUFFER%"${LBUFFER##*[![:space:]]}"}"
-#   local -a words
-#   words=(${(z)buf})
-#   print -r -- "${words[-1]}"
-# }
-
-# insert_lastarg_parens() {
-#   local arg="$(get_last_arg)"
-#   LBUFFER+="(${arg})"
-# }
-# zle -N insert_lastarg_parens
-# bindkey '^X\(' insert_lastarg_parens
-
-# insert_lastarg_singlequote() {
-#   local arg="$(get_last_arg)"
-#   LBUFFER+="'$arg'"
-# }
-# zle -N insert_lastarg_singlequote
-# bindkey '^Q' insert_lastarg_singlequote
-
-# insert_lastarg_shell_escaped() {
-#   local arg="$(get_last_arg)"
-#   LBUFFER+="$(printf '%q' "$arg")"
-# }
-# zle -N insert_lastarg_shell_escaped
-# bindkey '^X^\\' insert_lastarg_shell_escaped
-
-# insert_lastarg_doublequote() {
-#   local arg="$(get_last_arg)"
-#   LBUFFER+="\"$arg\""
-# }
-# zle -N insert_lastarg_doublequote
-# bindkey '^X\"' insert_lastarg_doublequote
-
-# insert_lastarg_braced_var() {
-#   local arg="$(get_last_arg)"
-#   LBUFFER+='{"'"$arg"'"}'
-# }
-# zle -N insert_lastarg_braced_var
-# bindkey '^X\{' insert_lastarg_braced_var
-
-# bindkey '^[r' lbuffer-last-arg
-# zle -N lbuffer-last-arg
-
 is_alias_type() {
-    t="$1"
-    if type "$t" 2>/dev/null | grep -qi 'alias from' ; then
-        grep -rn "'${t}='" ~/.config/(shell|zsh) | grep -vE '[~#]' | awk -F ':' '{print $1, $2}' | \
-            while read -r f l ; do
-              [ -f "$f" ] && [ -n "$l" ] || continue
-               if emc +"$l" "$f" 2>/dev/null ; then
-                 break
-               fi
-             done
-    fi
-    unset t
-    return 1
+    al="$1"
+    aln=$(grep -rn "${al}=" ~/.config/(shell|zsh) | grep -vE '[~#]' | awk -F ':' '{print $1, $2}')
+    f=$(echo "$fnl" | awk '{print $1}')
+    l=$(echo "$fnl" | awk '{print $2}')
+    devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c "+${l}" "$f" || true
 }
 
 is_fn_type() {
-    t="$1" ;
-    if type "$t" 2>/dev/null | grep -qi 'function from' ; then
-        grep -rn "'${t}() '" ~/.config/(shell|zsh) | grep -vE '[~#]' | awk -F ':' '{print $1, $2}' | \
-            while read -r f l ; do
-                [ -f "$f" ] && [ "$l" -gt 0 ] && emc +"$l" "$f" 2>/dev/null || return 1
-            done
-    fi
-    unset t
-    return 0
-}
-
-is_which_type() {
-    f=$(which "$1")
-    if [ -f "$f" ] || [ -d "$f" ]; then
-        emc "$f" || { unset f ; return 1 ; }
-    fi
-    unset f
-    return 0
+    fn="$1"
+    fnl=$(grep -rn "${fn}() " ~/.config/(shell|zsh) | grep -vE '[~#]' | awk -F ':' '{print $1, $2}' )
+    f=$(echo "$fnl" | awk '{print $1}')
+    l=$(echo "$fnl" | awk '{print $2}')
+    devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c "+${l}" "$f" || true
 }
 
 is_file_type() {
-    f="$1"
-    if [ -f "$f" ] || [ -d "$f" ]; then
-        emc "$f" || { unset f ; return 1 ; }
-    fi
-    unset f
-    return 0
-}
-
-is_str_type() {
-    f="$1"
-    pwd=$(pwd)
-    d=${pwd:-"./"}
-    emc "$d/$f" || { unset f d ; return 1 ; }
-    unset f d
-    return 0
+    devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c "$(is_file_type "$t")" || true
 }
 
 emtype() {
     t=$(get_last_arg)
-    for fn in is_file_type is_which_type is_fn_type is_str_type ; do
-         if eval "$fn" "$t" ; then
-             break
-         fi
-    done
-    unset t
-    return 0
+    wt=$(type -w "$t" | awk '{print $2}')
+    case "$wt" in
+        'alias') is_alias_type "$t" || return 1 ;;
+        'function') is_fn_type "$t" || return 1 ;;
+        *) if ! is_file_type "$t" ; then
+               devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c -n "$t"  || true
+           else
+               return 1
+           fi
+           ;;
+    esac
+    return
 }
-zle -N  emtype
+zle -N emtype
 bindkey -M emacs '^[e' emtype
 bindkey -M vicmd '^[e' emtype
 bindkey -M viins '^[e' emtype
@@ -616,7 +535,7 @@ bindkey '^[+' split-line
 # }
 # zle -N fzf_cd
 
-# __fzfmenu__(){
+# __fzfmenu__() {
 #   local cmd="fd -tf --max-depth=1"
 #   eval $cmd | ~/.local/bin/fzfmenu
 # }
@@ -649,7 +568,7 @@ bindkey '^[+' split-line
 #  bindkey '^X^Y' tmxzf  */
 
 cfg-edit() {
-    find ~/.config/{mpv,lf,nsxiv,nvim,shell,x11,zathura,picom,ncmpcpp,newsboat,mpd,ytfzf,zsh} ~/.local/src/{dwm,st,dmenu,dwmblocks} ~/Templates/nix ~/.local/bin -type f | \
+    find ~/.config/{mpv,lf,nsxiv,nvim,shell,x11,zathura,picom,ncmpcpp,newsboat,mpd,ytfzf,zsh,yazi} ~/.local/src/{dwm,st,dmenu,dwmblocks} ~/Templates/{nix,dwm,dwmblocks,xmouseless,st,dotfile} ~/.local/bin -type f | \
         grep -vE '[#~]' | fzf --multi --print0 |\
         while IFS= read -r -d '' f; do
             if [ -f "$f" ] || [ -d "$f" ]; then
@@ -722,7 +641,9 @@ sshop() {
     return 0
 }
 zle -N sshop
-bindkey '^X^S' sshop
+bindkey -M viins '^X^S' sshop
+bindkey -M vicmd '^X^S' sshop
+bindkey -M emacs '^X^S' sshop
 
 # plugin sourcing
 source /usr/share/nvm/init-nvm.sh
@@ -737,8 +658,8 @@ export YAZI_CONFIG_HOME="$HOME/.config/yazi"
 export YAZI_FILE_ONE="$(which file)"
 export YAZI_ZOXIDE_OPTS="--recent"
 
-function y() {
-    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+y() {
+    tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
     yazi "$@" --cwd-file="$tmp"
     if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
         builtin cd -- "$cwd" ;
@@ -746,7 +667,6 @@ function y() {
     rm -f -- "$tmp" >/dev/null 2>&1
 }
 zle -N y
-
 bindkey -M vicmd '^X^Y' y
 bindkey -M viins '^X^Y' y
 bindkey -M emacs '^X^Y' y
@@ -827,7 +747,7 @@ bindkey '^X^E' edit-command-line        # Ctrl-x Ctrl-e (Edit command-line in $E
 #  bindkey "$terminfo[kcub1]" backward-char         # Left arrow
 
 # dash POSIX dotfiles + readline keymap
-alias dash="ENV=~/.env rlwrap -n dash"
+alias dash="ENV=~/.env rlwrap -n dash -i"
 
 [ -e /etc/profile.d/nix.sh ] && . /etc/profile.d/nix.sh
 [ "$NIX_PATH" = "nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs" ] || NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs"
@@ -845,11 +765,15 @@ export NIX_PATH
 #      [ -n "$barpid" ] && echo "$barpid" > "$STATUSBAR"
 #  fi
 
-STATUSBAR=$(pgrep dwmblock | xargs -r ps | grep ${GPG_TTY##*/} | awk '{print $1}')
-DWMBLOCKS=${STATUSBAR:-"dwmblocks"}
+dwmbar=$(pgrep dwmblock | xargs -r ps | grep ${GPG_TTY##*/} | awk '{print $1}')
+DWMBLOCKS=${dwmbar:-"dwmblocks"}
 export DWMBLOCKS
 
+# Pre-export the current cmdline
 preexec() { export LAST_CMD="$1" ; }
 
-# Fast highlighting plugin
+# Wikiman plugin
+source /usr/share/wikiman/widgets/widget.zsh
+
+# Fast syntax highlighting
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
