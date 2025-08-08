@@ -10,7 +10,7 @@ Nsxiv.window.foreground: #484848
 Nsxiv.window.background.alpha: 0.9
 
 Zathura.window.background: #181818
-Zathura.window.background.alpha: 0.8
+Zathura.window.background.alpha: 0.6
 
 !! HiDPI
 Xft.dpi: 204

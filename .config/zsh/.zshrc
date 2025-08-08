@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-08-05 05:14:24 cf>
+# Time-stamp: <2025-08-07 18:21:44 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #        __       _          _ _
 #   ___ / _|  ___| |__   ___| | |
@@ -185,7 +185,7 @@ _comp_options+=(globdots)
 _dsrfraw_elvi_completion() {
     local -a elvis
     elvis=(
-        ${(f)"$(sr -elvi | cut -d'-' -f1 | sed 's/\t//g' | tr -d ' ' | awk 'NR > 1')"}
+        ${(f)"$(sr -elvi | cut -d'-' -f1 | sed 's/\t//g' | tr -d ' ' | awk 'nr > 1')"}
     )
     _describe 'values' elvis
 }
@@ -211,24 +211,37 @@ bindkey -a ys add-surround
 bindkey -a Y vi-yank-eol
 bindkey -M visual S add-surround
 
-#  function emacs {
+autoload -Uz run-help
+alias help=run-help
+
+# Wikiman plugin
+source /usr/share/wikiman/widgets/widget.zsh
+bindkey '^X^_' _wikiman_widget
+
+#  emacs() {
 #      if [[ $# -eq 0 ]]; then
-#          /usr/bin/emacs # "emacs" is function, will cause recursion
+#          setsid -f /usr/local/bin/emacs # "emacs" is function, will cause recursion
 #          return
 #      fi
 #      args=($*)
 #      for ((i=0; i <= ${#args}; i++)); do
 #          local a=${args[i]}
-#          # NOTE: -c for creating new frame
 #          if [[ ${a:0:1} == '-' && ${a} != '-c' && ${a} != '--' ]]; then
-#              /usr/bin/emacs ${args[*]}
+#              (
+#                  [ -t 1 ] && devour /usr/local/bin/emacs ${args[*]}
+#              ) || {
+#                  setsid -f /usr/local/bin/emacs ${args[*]} >/dev/null 2>&1
+#              }
 #              return
 #          fi
 #      done
-#      setsid -f emacsclient - -n -a "" ${args[*]}
+#      ( [ -t 1 ] && devour emacsclient -c -a "" ${args[*]} ) || {
+#          setsid -f /usr/local/bin/emacsclient \
+#                 -s ${EMACS_SOCKET_NAME:-"$XDG_RUNTIME_DIR/emacs/server"} \
+#                 -cn --alternate-editor="" ${args[*]} >/dev/null 2>&1
+#      }
 #  }
-
-[ -z "$(pidof -xs emacs)" ] && emacs -f server-start >/dev/null 2>&1
+[ -z "$(pidof -xs emacs)" ] && setsid -f /usr/local/bin/emacs -f server-start >/dev/null 2>&1
 
 # Use vim keys in tab completion menu
 bindkey -M menuselect 'h' vi-backward-char
@@ -559,13 +572,14 @@ bindkey '^[+' split-line
 # zle -N pick_torrent
 # bindkey '^t' pick_torrent
 
-#  zle -N fzfbm
-#  zle -N tmxzf
 
+zle -N fzfbm
 # ctrl-x ctrl-b
-#  bindkey '^X^B' fzfbm  */
+bindkey '^X^B' fzfbm
+
+#  zle -N tmxzf
 # ctrl-x ctrl-y
-#  bindkey '^X^Y' tmxzf  */
+#  bindkey '^X^Y' tmxzf
 
 cfg-edit() {
     find ~/.config/{mpv,lf,nsxiv,nvim,shell,x11,zathura,picom,ncmpcpp,newsboat,mpd,ytfzf,zsh,yazi} ~/.local/src/{dwm,st,dmenu,dwmblocks} ~/Templates/{nix,dwm,dwmblocks,xmouseless,st,dotfile} ~/.local/bin -type f | \
@@ -573,7 +587,7 @@ cfg-edit() {
         while IFS= read -r -d '' f; do
             if [ -f "$f" ] || [ -d "$f" ]; then
                 emc "$f" || { echo "failed to open $f" >&2 ; return 1 ; }
-                echo "$f" | grep -Eq '(alias|zsh|functions)' && { zle -I; source "$f"; continue; }
+                echo "$f" | grep -Eq '(alias|zsh|functions)' && { zle -I; source "$f" 2>/dev/null ; continue; }
             fi
         done
     return 0
@@ -771,9 +785,6 @@ export DWMBLOCKS
 
 # Pre-export the current cmdline
 preexec() { export LAST_CMD="$1" ; }
-
-# Wikiman plugin
-source /usr/share/wikiman/widgets/widget.zsh
 
 # Fast syntax highlighting
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null

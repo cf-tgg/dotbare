@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#compdef dsurfraw
 
 BROWSERS=(
   brave
@@ -14,6 +14,7 @@ ELVIS=(
   google
   duckduckgo
   archwiki
+  emacswiki
   wikipedia
   youtube
   discogs
@@ -23,10 +24,7 @@ ELVIS=(
 _dsurfraw() {
     set -e
     sr --elvi
-
-
     reply=("$@")
-
 }
 
 compdef _dsurfraw dsurfraw

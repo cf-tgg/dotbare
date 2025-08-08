@@ -55,10 +55,10 @@ local function ytcomments()
     if link then
         local quoted_link = string.format([["%s"]], link)
         local cmd = {
-            "emacsclient", "-cn", "--socket-name=/run/user/1000/emacs/server", "--alternate-editor=", "-e",
+            "emc", "-c", "-n", "-e",
             string.format("(shell-command (format \"ytcomments %s\" %s))", "%s", quoted_link)
         }
-       
+
        local result = utils.subprocess({ args = cmd })
        if not result or result.error or result.status ~= 0 then
           mp.msg.error("Error running Emacsclient command: " .. (result and result.error or "unknown error"))

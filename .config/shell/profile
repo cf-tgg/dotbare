@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-08-04 20:48:07 cf>
+# Time-stamp: <2025-08-07 05:32:48 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 # shellcheck disable=SC2155
 
@@ -41,13 +41,11 @@ export EXWMRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc.exwm"
 export GNUPGHOME="${XDG_DATA_HOME:-$HOME/.local/share}/gnupg"
 export SUDO_ASKPASS="$HOME/.local/bin/dmenu/askpass"
 export PASSWORD_STORE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/password-store"
-
 export EMACS_SERVER_FILE="$XDG_RUNTIME_DIR/emacs/server"
 export EMACS_SOCKET_NAME="$XDG_RUNTIME_DIR/emacs/server"
 export ALTERNATE_EDITOR=""
 export VISUAL="emacsclient"
 export EDITOR="nvim"
-
 export GTK2_RC_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-2.0/gtkrc-2.0"
 export QT_QPA_PLATFORMTHEME="qt6ct"
 export AWT_TOOLKIT="MToolkit wmname LG3D"
@@ -55,7 +53,6 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 export MOZ_USE_XINPUT2=1
 export GDK_SCALE=1
 export GTK_THEME="Adwaita-dark"
-
 export MAIL="$HOME/.local/mail"
 export MBSYNCRC="${XDG_CONFIG_HOME:-$HOME/.config}/mu4e/mbsyncrc"
 export WGETRC="${XDG_CONFIG_HOME:-$HOME/.config}/wget/wgetrc"
@@ -71,14 +68,13 @@ export ANDROID_SDK_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/android"
 # export ELECTRUMDIR="${XDG_DATA_HOME:-$HOME/.local/share}/electrum"
 # export UNISON="${XDG_DATA_HOME:-$HOME/.local/share}/unison"
 # export KODI_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/kodi"
-
 # export DICS="/usr/share/stardict/dic/"
 # export SDCV_DATA_DIR="$HOME/Documents/Dicts/"
+
 export SDCV_DATA_DIR="/usr/share/stardict/dic/"
 export BESCHERELLE_DIR="$HOME/Documents/Bescherelle"
 export MPVQ_PLAYLIST="$HOME/.cache/mpvq/mpvq.m3u8"
 export SURFRAW="/usr/lib/surfraw"
-
 export NODE_PATH="${XDG_DATA_HOME:-$HOME/.local/share}/node_modules"
 export NVM_BIN="${XDG_DATA_HOME:-$HOME/.local/share}/.nvm/versions/node/v22.6.0/bin"
 export NVM_INC="${XDG_DATA_HOME:-$HOME/.local/share}/.nvm/versions/node/v22.6.0/include/node"
@@ -93,12 +89,14 @@ PERL_LOCAL_LIB_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/perl5${PERL_LOCAL_LIB_
 PERL_MB_OPT="--install_base \"${XDG_DATA_HOME:-$HOME/.local/share}/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=${XDG_DATA_HOME:-$HOME/.local/share}/perl5"; export PERL_MM_OPT;
 
+export GEM_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/ruby"
 export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
 export GOMODCACHE="${XDG_CACHE_HOME:-$HOME/.cache}/go/mod"
 export GOBIN="${XDG_DATA_HOME:-$HOME/.local/share}/go/bin"
 export GO111MODULE="on"
 export NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs"
-
+export CARGO_HOME="${XDG_DATA_HOME}/cargo"
+export CARGO_BIN="$CARGO_HOME/bin"
 ###{{{
 export LESS="R"
 export LESS_TERMCAP_mb="$(printf '%b' '[1;31m')"
@@ -115,7 +113,7 @@ export FZF_DEFAULT_OPTS="--ansi --layout=reverse --height='100%' --border --colo
 export INFO_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/info.conf.d"
 export INFO_INIT_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/shell/infoinitrc"
 
-export PATH="$PATH:$CARGO_HOME/bin:$SURFRAW:$GOBIN:$NODE_PATH:$NVM_BIN"
+export PATH="$PATH:$CARGO_BIN:$SURFRAW:$GOBIN:$NODE_PATH:$NVM_BIN:$GEM_HOME"
 export TTS_MODEL="fr_FR-gilles-low"
 export VDPAU_DRIVER="radeonsi"
 
@@ -153,6 +151,6 @@ fi
 [ -n "$(tty | grep -qi "tty" 2>/dev/null)" ] && {
     setfont -d
     if kbd_mode -a >/dev/null 2>&1 ; then
-        sudo -n loadkeys "$ttymap" 2>/dev/null || true
+        sudo -n loadkeys "$ttymap" >/dev/null 2>&1
     fi
-}
+} || true

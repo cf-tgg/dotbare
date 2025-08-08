@@ -209,5 +209,4 @@ alias docker-clean=' \
   docker volume prune -f '
 
 alias cg='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-
 alias jy='ssh -Y -J rdg3'

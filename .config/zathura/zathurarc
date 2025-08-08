@@ -67,7 +67,7 @@ set window-icon "/usr/share/icons/hicolor/256x256/apps/org.pwmt.zathura.png"
 set window-height 600
 # Defines the window width on startup
 set window-width 800
-set adjust-open 'best-fit'
+set adjust-open 'width'
 
 # Defines the color that is used to show the current selected highlighted element (e.g: current search result) rgba(0,188,0,0.5)
 set highlight-active-color "rgba(188,188,188,0.5)"
@@ -80,7 +80,7 @@ set highlight-color "rgba(180,150,150,0.5)"
 
 # Defines the modifier that needs to be pressed together with the left mouse button to draw the highlighter.
 # Possible values are "shift", "ctrl" and "alt".
-set highlighter-modifier "shift"
+set highlighter-modifier shift
 
 # En/Disables incremental search (search while typing).
 set incremental-search true
@@ -140,11 +140,11 @@ set render-loading false
 set render-loading-bg "rgba(230,230,230,0.9)"
 
 # Defines the foreground color that is used for the "Loading..." text.
-set render-loading-fg "#000000"
+set render-loading-fg "#FFFFFF"
 
 # Defines the sandbox mode to use for the seccomp syscall filter.
 # Possible values are "none", "normal" and "strict".
-# set sandbox none
+set sandbox none
 
 # Defines the proportion of the current viewing area that should be visible after scrolling a full page.
 # set scroll-full-overlap 10
@@ -153,10 +153,10 @@ set render-loading-fg "#000000"
 # set scroll-hstep -1
 
 # Defines the step size of scrolling by calling the scroll command once
-set scroll-step 50
+set scroll-step 45
 
 # Defines if scrolling by half or full pages stops at page boundaries.
-# set scroll-page-aware false
+set scroll-page-aware true
 
 # Defines if the last/first page should be wrapped
 # set scroll-wrap false
@@ -166,7 +166,7 @@ set scroll-step 50
 
 # Defines the X clipboard into which mouse-selected data will be written.
 # Possible values: "clipboard", "primary"
-set selection-clipboard clipboard
+set selection-clipboard primary
 # Defines if a notification should be displayed after selecting text.
 set selection-notification false
 
@@ -195,7 +195,7 @@ set zoom-center true
 set statusbar-h-padding 0
 set statusbar-v-padding 0
 set page-padding 0.3
-set selection-clipboard clipboard
+# set selection-clipboard clipboard
 map d scroll half-down
 map u scroll half-up
 map n scroll half-down
