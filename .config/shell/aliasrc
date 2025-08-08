@@ -209,4 +209,14 @@ alias docker-clean=' \
   docker volume prune -f '
 
 alias cg='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias cgs="cg status | grep modified | awk '{print \$2}'"
 alias jy='ssh -Y -J rdg3'
+
+cga() {
+    /usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME status \
+        | grep modified \
+        | awk '{print $2}' | while read -r f ; do
+        [ -f "$f" ] && /usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME" add "$f"
+    done
+    /usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME status
+}
