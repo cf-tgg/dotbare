@@ -1,6 +1,8 @@
-# lfrc --- lf configuration file -*- mode: sh -*-
+# lfrc --- lf configuration file -*- mode: sh; -*- vim:ft=sh:sw=2:ts=2:sts=2:et:
+# Time-stamp: <2025-08-11 11:44:27 cf>
+# Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #
-# + Note on Image Previews
+# * Note on Image Previews
 #   For those wanting image previews, like this system, there are four steps to
 #   set it up. These are done automatically for LARBS users, but I will state
 #   them here for others doing it manually.
@@ -189,9 +191,13 @@ cmd mpvsend ${{
 }}
 
 cmd editcmd ${{
-     w="$WINDOWID" ; export w ; xdo hide "$w" ;
-     emc "$fx" || true
-     xdo show "$w"
+    id=$(id -u)
+    esd="/run/user/$id/emacs/server"
+    for f in $fx ; do
+       if [ -f "$f" ] || [ -d "$f" ]; then
+           devour emacsclient --create-frame --alternate-editor="" --socket-name="$esd" "$f" || true
+       fi
+    done || true
 }}
 
 cmd change_mode ${{
@@ -285,5 +291,3 @@ map <gt> $fzhsync "$fx"
 
 # Source Bookmarks
 source "~/.config/lf/shortcutrc"
-
-# vim: ft=sh:sw=2:ts=2:sts=2:et:

@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-08-07 18:21:44 cf>
+# Time-stamp: <2025-08-09 01:26:07 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #        __       _          _ _
 #   ___ / _|  ___| |__   ___| | |
@@ -782,9 +782,11 @@ export NIX_PATH
 dwmbar=$(pgrep dwmblock | xargs -r ps | grep ${GPG_TTY##*/} | awk '{print $1}')
 DWMBLOCKS=${dwmbar:-"dwmblocks"}
 export DWMBLOCKS
-
+export DOT="$HOME/.dotf"
 # Pre-export the current cmdline
 preexec() { export LAST_CMD="$1" ; }
 
+export PATH="$HOME/.local/bin/$:$PATH"
+#
 # Fast syntax highlighting
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null

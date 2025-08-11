@@ -1,1 +1,1 @@
-/home/cf/.config/shell/shrc
+.dotf/bash/.profile
