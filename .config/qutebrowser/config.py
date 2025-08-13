@@ -125,6 +125,9 @@ c.fonts.web.size.default_fixed = 12
 c.fonts.web.size.minimum = 10
 
 # Bindings for normal mode
+config.bind('gG', ':tab-give 1')
+config.bind('gT', 'cmd-set-text :tab-take 2;;command-accept --rapid')
+config.bind('.', 'cmd-repeat-last')
 config.bind(',,', 'jseval --quiet --file ~/.config/qutebrowser/userscripts/toggle_visibility.js')
 config.bind(',B', ':set statusbar.show never')
 config.bind(',D', 'set downloads.location.prompt false')
@@ -197,7 +200,6 @@ config.bind('n', 'fake-key <down>')
 config.bind('p', 'fake-key <up>')
 config.bind('N', 'next-page')
 config.bind('P', 'previous-page')
-config.bind('gT', 'cmd-set-text :tab-give ')
 config.bind('td', 'jseval --quiet --file ~/.config/qutebrowser/userscripts/mkdragelm.js')
 config.bind('tt', 'fake-key <Ctrl+c>;;yank selection;;spawn tts "$(xclip -selection clipboard -o)"')
 config.bind('<Ctrl+g>', 'fake-key <Escape>')

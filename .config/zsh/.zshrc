@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-08-09 01:26:07 cf>
+# Time-stamp: <2025-08-12 22:28:23 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #        __       _          _ _
 #   ___ / _|  ___| |__   ___| | |
@@ -572,7 +572,6 @@ bindkey '^[+' split-line
 # zle -N pick_torrent
 # bindkey '^t' pick_torrent
 
-
 zle -N fzfbm
 # ctrl-x ctrl-b
 bindkey '^X^B' fzfbm
@@ -582,7 +581,7 @@ bindkey '^X^B' fzfbm
 #  bindkey '^X^Y' tmxzf
 
 cfg-edit() {
-    find ~/.config/{mpv,lf,nsxiv,nvim,shell,x11,zathura,picom,ncmpcpp,newsboat,mpd,ytfzf,zsh,yazi} ~/.local/src/{dwm,st,dmenu,dwmblocks} ~/Templates/{nix,dwm,dwmblocks,xmouseless,st,dotfile} ~/.local/bin -type f | \
+    find ~/.config/{mpv,lf,nsxiv,nvim,shell,x11,zathura,picom,ncmpcpp,newsboat,mpd,ytfzf,zsh,yazi} ~/.local/src/{dwm,st,dmenu,dwmblocks} ~/Templates/{nix,dwm,dwmblocks,xmouseless,st,dotfiles} ~/.local/bin -type f | \
         grep -vE '[#~]' | fzf --multi --print0 |\
         while IFS= read -r -d '' f; do
             if [ -f "$f" ] || [ -d "$f" ]; then
@@ -783,10 +782,11 @@ dwmbar=$(pgrep dwmblock | xargs -r ps | grep ${GPG_TTY##*/} | awk '{print $1}')
 DWMBLOCKS=${dwmbar:-"dwmblocks"}
 export DWMBLOCKS
 export DOT="$HOME/.dotf"
+
 # Pre-export the current cmdline
 preexec() { export LAST_CMD="$1" ; }
 
-export PATH="$HOME/.local/bin/$:$PATH"
-#
+export PATH="$PATH:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin"
+
 # Fast syntax highlighting
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null

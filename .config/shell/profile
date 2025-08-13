@@ -1,13 +1,14 @@
 #!/bin/sh
 # -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-08-07 05:32:48 cf>
+# Time-stamp: <2025-08-12 22:28:27 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 # shellcheck disable=SC2155
 
 # Add all sub-directories of `$HOME/.local/bin` to $PATH
-export PATH="$(find "$HOME/.local/bin" -type d -exec printf "{}:" \; )$PATH"
-export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
 env MANPATH="/home/cf/.nix-profile/share/man:/home/cf/.nix-profile/share/man/man1:/home/cf/.nix-profile/share/man/man5:/home/cf/.nix-profile/share/man/man8:/home/cf/.local/share/.nvm/versions/node/v22.6.0/share/man:/home/cf/.local/share/perl5/man:/home/cf/.nix-profile/share/man:/home/cf/.local/share/man:/usr/local/man:/usr/local/share/man:/usr/share/man:/usr/lib/jvm/default/man" sudo mandb >/dev/null 2>&1
+
+export PATH="$(find "$HOME/.local/bin" -type d -exec printf "{}:" \; )$PATH"
+
 
 unsetopt PROMPT_SP 2>/dev/null
 

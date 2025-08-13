@@ -99,6 +99,7 @@
         ".td-scroll-up",
         ".scroll-up-visible",
         ".TccjmKV6RraCaCw5L9gd",                 /* ddg feedback-prompt */
+        ".c-avStickyVideo",
     ];
 
     const toggleable = [
