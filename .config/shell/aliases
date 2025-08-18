@@ -37,7 +37,7 @@ alias ilag='logo-ls -AD'
 alias illg='logo-ls -alD'
 
 alias ttymap='printf "keycode 1 = Caps_Lock\nkeycode 58 = Escape\n" >tty.kmap && sudo -n loadkeys tty.kmap && rm tty.kmap'
-alias em='emacsclient -c --alternate-editor"" --socket-name="${XDG_RUNTIME_DIR}/emacs/server"'
+alias em='emacsclient -c --alternate-editor"" --socket-name="$XDG_RUNTIME_DIR/emacs/server"'
 alias ytmeta='cd ~/Videos/yt/meta'
 alias empd='nvim -o ~/.cache/mpd-title ~/.cache/mpd-streams'
 alias ytls="pipe-viewer -ls"
@@ -132,7 +132,6 @@ alias sp='soco Portable' \
   spfav='soco Portable play_fav' \
   spaddpl='soco Portable add_playlist_to_queue' \
   spaddlibpl='soco Portable add_library_playlist_to_queue'
-
 
 # edit src
 alias cfblocks='emc ~/.local/src/dwmblocks/blocks.h && cd ~/.local/src/dwmblocks && sudo make clean install && { killall -q dwmblocks ; setsid -f dwmblocks >/dev/null 2>&1 ; } ; cd ~' \

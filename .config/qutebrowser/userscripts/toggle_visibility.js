@@ -123,6 +123,7 @@
         ".cursor-pointer.absolute.z-10",
         ".header-main__slider",                  /* GeeksForGeeks */
         ".header-main",
+        "#header-main__slider-outer-div",
         ".top-banner.fallback",	                 /* MDNs Headers */
         ".sticky-header-container",
         "ytd-masthead",
@@ -162,32 +163,43 @@
         ".p.q.r.s.t.u.v.w.x.i.d.y.z",
         ".p.q.r.ab.ac",
         ".bh.ww.ab.c.q.ic.wx.lq.wy",
+        ".bg-\\[\\#2c9d30\\].z-\\[11\\].text-sm.max-lg\\:sticky.top-0.text-white.flex.items-center.h-\\(--nav-1-height\\).\\[\\&_a\\]\\:hover\\:underline",  /* tutorialpoint */
+        ".h-\\(--nav-2-height\\).z-\\[11\\].sticky.bg-white.top-\\(--nav-1-height\\).lg\\:top-0.px-3.flex.items-center.border-b.border-gray-300",
     ];
+
     hideElements(blacklist);
     toggleVisibility(toggleable);
-    let toggleButton = document.querySelector(".toggleButton");
+
+let toggleButton = document.querySelector(".toggleButton");
     if (toggleButton === null) {
         toggleButton = document.createElement("button");
-        toggleButton.innerText = "[+]";
+        toggleButton.innerText = "";
         toggleButton.className = "toggleButton";
-        toggleButton.style.position = "fixed";
-        toggleButton.style.bottom = "1px";
-        toggleButton.style.right = "1px";
+        toggleButton.style.bottom = "30px";
+        toggleButton.style.right = "30px";
         toggleButton.style.zIndex = "9999";
-        toggleButton.style.padding = "2px";
-        toggleButton.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-        toggleButton.style.color = "#484848";
+        toggleButton.classList.add("liquid-glass");
+        toggleButton.style.position = "fixed";
+        // toggleButton.style.color = "rgba(255, 255, 255, 0.5)";
+        toggleButton.style.width = "1.3rem";
+        toggleButton.style.height = "1.2rem";
+        toggleButton.style.display = "flex";
+        toggleButton.style.alignItems = "center";
+        toggleButton.style.justifyContent = "center";
+        toggleButton.style.padding = "5px";
+        // toggleButton.style.margins = "5px";
+        toggleButton.style.backgroundColor = "rgba(0, 0, 0, 0.25)";
+        // toggleButton.style.backdropFilter = "blur(3px)";
+        toggleButton.style.fontSize = "24px";
         toggleButton.style.border = "none";
-        toggleButton.style.borderRadius = "5px";
+        // toggleButton.style.borderRadius = "10px";
         toggleButton.style.cursor = "pointer";
-        toggleButton.draggable = "both";
-
         toggleButton.addEventListener("click", () => {
             toggleVisibility(toggleable);
-            if (toggleButton.innerText == "[+]") {
-               toggleButton.innerText = "[-]";
+            if (toggleButton.innerText == "") {
+                toggleButton.innerText = "";
             } else {
-                toggleButton.innerText = "[+]";
+                toggleButton.innerText = "";
             }
         });
         document.body.appendChild(toggleButton);

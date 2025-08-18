@@ -62,7 +62,7 @@ config.set('content.register_protocol_handler', True, 'https://outlook.office.co
 config.set('content.register_protocol_handler', True, 'https://outlook.live.com?mailtouri=%25s')
 config.set('content.register_protocol_handler', False, 'https://mail.proton.me#mailto=%25s')
 
-c.content.user_stylesheets = ['~/Templates/css/root_sensible.css']
+c.content.user_stylesheets = ['~/Templates/css/style.css']
 c.completion.shrink = True
 c.completion.scrollbar.width = 0
 c.downloads.location.prompt = True
@@ -125,8 +125,7 @@ c.fonts.web.size.default_fixed = 12
 c.fonts.web.size.minimum = 10
 
 # Bindings for normal mode
-config.bind('gG', ':tab-give 1')
-config.bind('gT', 'cmd-set-text :tab-take 2;;command-accept --rapid')
+
 config.bind('.', 'cmd-repeat-last')
 config.bind(',,', 'jseval --quiet --file ~/.config/qutebrowser/userscripts/toggle_visibility.js')
 config.bind(',B', ':set statusbar.show never')
@@ -204,12 +203,17 @@ config.bind('td', 'jseval --quiet --file ~/.config/qutebrowser/userscripts/mkdra
 config.bind('tt', 'fake-key <Ctrl+c>;;yank selection;;spawn tts "$(xclip -selection clipboard -o)"')
 config.bind('<Ctrl+g>', 'fake-key <Escape>')
 
+## Tabs
+config.bind('gG', ':tab-give 1')
+config.bind('gT', 'cmd-set-text :tab-take -k')
+config.bind('<Ctrl+.>', 'command-accept --rapid', mode='command')
+
 # Bindings for caret mode
 config.bind('EE', 'fake-key <ctrl+c>;;yank selection;;spawn sleep 0.3;;spawn --detach st -e vimclip', mode='caret')
 config.bind('d', 'fake-key <down>', mode='caret')
 config.bind('u', 'fake-key <up>', mode='caret')
-config.bind('j', 'move-to-next-line;;scroll-page 0 0.01', mode='caret')
-config.bind('k', 'move-to-prev-line;;scroll-page 0 -0.01', mode='caret')
+config.bind('j', 'move-to-next-line;;scroll-page 0 0.03', mode='caret')
+config.bind('k', 'move-to-prev-line;;scroll-page 0 -0.03', mode='caret')
 config.bind('tt', 'fake-key <Ctrl+c>;;yank selection;;spawn tts "$(xclip -selection clipboard -o)" ', mode='caret')
 config.bind('<Ctrl+a>', 'fake-key <Home>', mode='caret')
 config.bind('<Ctrl+e>', 'fake-key <End>', mode='caret')

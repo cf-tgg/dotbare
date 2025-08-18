@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-08-12 22:28:23 cf>
+# Time-stamp: <2025-08-16 23:07:38 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #        __       _          _ _
 #   ___ / _|  ___| |__   ___| | |
@@ -10,32 +10,23 @@
 #
 #                      cf. [zshrc] ❯⟩
 
-autoload -U colors && colors
-
-RESET="%{$reset_color%}"
-GRAY="%{$fg[gray]%}"
-BLUE="%{$fg[blue]%}"
-RED="%{$fg[red]%}"
-YELLOW="%{$fg[yellow]%}"
-GREEN="%{$fg[green]%}"
-WHITE="%{$fg[white]%}"
-
-#PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M%{$fg[red]%}] %{$fg[magenta]%}%~%{$fg[$(if [ $? -eq 0 ]; then echo white; else echo red; fi)]%}  %{$reset_color%}%b"
-# PS1="%B%{$fg[magenta]%} %~%{$fg[$(if [ $? -eq 0 ]; then echo white; else echo red; fi)]%}  %{$reset_color%}%b "
-# PS1="%B%{$fg[magenta]%} %~%{$fg[$(if [ $? -eq 0 ]; then echo white; else echo red; fi)]%} ❱ %{$reset_color%}%b "
+autoload -U colors && colors >/dev/null 2>&1
 
 setopt prompt_subst
 
+#PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M%{$fg[red]%}] %{$fg[magenta]%}%~%{$fg[$(if [ $? -eq 0 ]; then echo white; else echo red; fi)]%}  %{$reset_color%}%b"
+
+# Display exit code of last commandline
 precmd() {
   if (( $? != 0 )); then
-    PROMPT_SYMBOL_COLOR="$RED"
+    PROMPT_SYMBOL_COLOR="%{$fg[red]%}"
   else
-    PROMPT_SYMBOL_COLOR="$RESET"
+    PROMPT_SYMBOL_COLOR="%{$reset_color%}"
   fi
 }
 
-# ❯
-if tty | grep -q "tty" ; then
+# Prompt ❯❯
+if tty | grep -q tty >/dev/null 2>&1 ; then
   PS1='%B%{$fg[magenta]%}%~%{$reset_color%} ${PROMPT_SYMBOL_COLOR}>%{$reset_color%}%b '
 else
   PS1='%B%{$fg[magenta]%}%~%{$reset_color%} ${PROMPT_SYMBOL_COLOR}⟩%{$reset_color%}%b '
@@ -44,11 +35,11 @@ fi
 setopt autocd
 stty stop undef
 
+# OPTIONS
 HISTSIZE=100000
 SAVEHIST=100000
 HISTFILE="$HOME/.cache/zsh/history"
-
-# HISTORY_IGNORE='(clear|pwd|exit|* —help|[bf]g *|less *|cd ..|cd -)'
+HISTORY_IGNORE='(clear|pwd|exit|* —help|[bf]g *|less *|cd ..|cd -)'
 
 setopt BANG_HIST                 # Perform textual history expansion, csh-style, treating the character ‘!’ specially.
 setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;command' format.
@@ -66,111 +57,20 @@ setopt APPEND_HISTORY            # append to history file
 setopt HIST_NO_STORE             # Don't store history commands
 setopt HIST_NO_FUNCTIONS         # Don't store function definitions
 
-# typeset -g session_cmd_count=0
-# job_count() {
-#     (( ${#jobstates} > 0 )) && echo "${BLUE}${#jobstates}j"
-# }
-
-# exit_status() {
-#     (( $? < 0 )) && echo "${RED}$?"
-# }
-
-# funcline_count() {
-#     if (( $? == 0 )); then
-#         local line_count=$(wc -l <<< "$last_command" 2>/dev/null | tr -d '[:space:]')
-#         [[ -n "$line_count" && "$line_count" -gt 0 ]] && echo "${line_count}"
-#     fi
-# }
-
-# positional_count() {
-#     (( $# > 0 )) && echo ":$#"
-# }
-
-# cmd_count() {
-#     [[ -n "$CMDCOUNT" ]] && echo "${GRAY}cmd:${GREEN}${CMDCOUNT}"
-# }
-
-# session_cmd_count=0
-# precmd() {
-#     (( session_cmd_count++ ))
-# }
-
-# hist_count() {
-#     [[ "$session_cmd_count" -gt 0 ]] && echo "${YELLOW}${session_cmd_count}"
-# }
-
-# : ${prev_lines:=0}
-# : ${prev_columns:=0}
-# terminal_width() {
-#     lines="$LINES"
-#     columns="$COLUMNS"
-#     if [ "$lines" -ne "$prev_lines" ] && [ "$columns" -ne "$prev_columns" ]; then
-#         echo "${WHITE}${lines}${GRAY}:${WHITE}${columns}"
-#         prev_lines="$LINES"
-#         prev_columns="$COLUMNS"
-#     else
-#         echo "0"
-#     fi
-# }
-
-# preexec() {
-#     command_start_time=$(date +%s%3N)  # Capture start time in milliseconds
-# }
-
-# precmd() {
-#     command_end_time=$(date +%s%3N)    # Capture end time in milliseconds
-#     LAST_EXECUTION_TIME=$((command_end_time - command_start_time))
-# }
-
-# exec_time() {
-#     local d_ms=$((LAST_EXECUTION_TIME % 1000))
-#     if (( LAST_EXECUTION_TIME > 1000 )); then
-#         echo "0"
-#         # echo "${GREEN}${d_ms}"  # Short
-#     elif (( LAST_EXECUTION_TIME > 5000)); then
-#         echo "${YELLOW}${d_ms}" # Average
-#     else
-#         echo "${RED}${d_ms}"    # Long
-#     fi
-# }
-
-# dspcnt() {
-#     out="$1"
-#     [[ -n "$out" && "$out" != "0" ]] && echo "${GRAY}[${RESET}${out}${GRAY}]"
-# }
-
-# prmptcnt() {
-#     local cnt=""
-#     cnt+=$(dspcnt "$(exec_time)")
-#     cnt+=$(dspcnt "$(job_count)")
-#     cnt+=$(dspcnt "$(exit_status)")
-#     cnt+=$(dspcnt "$(positional_count)")
-#     cnt+=$(dspcnt "$(cmd_count)")
-#     cnt+=$(dspcnt "$(hist_count)")
-#     cnt+="$(dspcnt ${GREEN}$(date +%H)${GRAY}:${YELLOW}$(date +%M)${GRAY}:${RED}$(date +%S))"
-#     cnt+=$(dspcnt "$(terminal_width)")
-#     echo -n "$cnt"
-# }
-# setopt prompt_subst
-# PS4='%{$fg[gray][%}$(prmptcnt)%{$fg[gray]]%}'
-# [ -f ".rprompt" ] && RPROMPT='$(prmptcnt)' || RPROMPT=""
-# rpr() {
-#     [ -f ".rprompt" ] && rm .rprompt >/dev/null || touch .rprompt >/dev/null
-#     source .zshrc >/dev/null
-# }
-
 # path check
 export PATH="$(echo "$PATH" | awk -v RS=: -v ORS=: '!a[$1]++' | sed 's/:$//')"
 
 # load extra configs
-SH_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/shell"
-for j in "$SH_CONFIG"/{aliases,aliasrc,functions,shortcutrc,shortcutenvrc,zshnameddirrc,ytaliases} ; do
-    [ -f "$j" ] && source "$j" >/dev/null 2>&1
+for j in "${XDG_CONFIG_HOME:-$HOME/.config}/shell"/{aliases,aliasrc,functions,shortcutrc,shortcutenvrc,zshnameddirrc,ytaliases} ; do
+    [ -f "$j" ] && source "$j" >/dev/null 2>&1 || true
 done
+unset j
 
 ralias() { gpg2 --quiet --no-tty --for-your-eyes-only --decrypt "$(pass ralias)" 2>/dev/null | source /dev/stdin ; }
 
-ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
+# Completion
+
+[ -z "$ZDOTDIR" ] && { ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh" ; export ZDOTDIR ; }
 # Base comp dir init
 fpath=($ZDOTDIR $fpath)
 
@@ -182,17 +82,11 @@ compinit
 _comp_options+=(globdots)
 
 # function for dsurfraw -e|--elvi option
-_dsrfraw_elvi_completion() {
-    local -a elvis
-    elvis=(
-        ${(f)"$(sr -elvi | cut -d'-' -f1 | sed 's/\t//g' | tr -d ' ' | awk 'nr > 1')"}
-    )
-    _describe 'values' elvis
-}
-compdef _dsrfraw_elvi_completion dsurfraw
 compdef _mpv vlb
 compdef _man ve
+compdef _dsurfraw dsurfraw
 compdef _exifjpg exifjpg
+compdef _tts tts
 
 # vi binds
 bindkey -v
@@ -216,32 +110,11 @@ alias help=run-help
 
 # Wikiman plugin
 source /usr/share/wikiman/widgets/widget.zsh
-bindkey '^X^_' _wikiman_widget
 
-#  emacs() {
-#      if [[ $# -eq 0 ]]; then
-#          setsid -f /usr/local/bin/emacs # "emacs" is function, will cause recursion
-#          return
-#      fi
-#      args=($*)
-#      for ((i=0; i <= ${#args}; i++)); do
-#          local a=${args[i]}
-#          if [[ ${a:0:1} == '-' && ${a} != '-c' && ${a} != '--' ]]; then
-#              (
-#                  [ -t 1 ] && devour /usr/local/bin/emacs ${args[*]}
-#              ) || {
-#                  setsid -f /usr/local/bin/emacs ${args[*]} >/dev/null 2>&1
-#              }
-#              return
-#          fi
-#      done
-#      ( [ -t 1 ] && devour emacsclient -c -a "" ${args[*]} ) || {
-#          setsid -f /usr/local/bin/emacsclient \
-#                 -s ${EMACS_SOCKET_NAME:-"$XDG_RUNTIME_DIR/emacs/server"} \
-#                 -cn --alternate-editor="" ${args[*]} >/dev/null 2>&1
-#      }
-#  }
-[ -z "$(pidof -xs emacs)" ] && setsid -f /usr/local/bin/emacs -f server-start >/dev/null 2>&1
+bindkey '^X^_' _wikiman_widget
+[ -z "$(pidof -xs emacs)" ] && {
+    setsid -f /usr/local/bin/emacs -f server-start >/dev/null 2>&1
+}
 
 # Use vim keys in tab completion menu
 bindkey -M menuselect 'h' vi-backward-char
@@ -271,7 +144,6 @@ function zle-keymap-select () {
         viins|main) echo -ne '\e[5 q';; # beam
     esac
 }
-
 echo -ne '\e[5 q' #Beam preload
 preexec() { echo -ne '\e[5 q' ; }
 
@@ -310,8 +182,17 @@ bindkey -M emacs '^[m' __fzf_nova__
 bindkey -M vicmd '^[m' __fzf_nova__
 bindkey -M viins '^[m' __fzf_nova__
 
+# Attach to tmux nvim session
+tmux-attach-nvim() {
+   zle -I ; LBUFFER="switch-back-to-nvim" ; zle-accept-line 2>/dev/null || return 1
+}
+zle -N tmux-attach-nvim
+bindkey -M viins '^X^N' tmux-attach-nvim
+bindkey -M vicmd '^X^N' tmux-attach-nvim
+bindkey -M emacs '^X^N' tmux-attach-nvim
+
 toupper() {
-    echo "$@" | tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
+     echo "$@" | tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
 }
 
 tolower() {
@@ -418,8 +299,6 @@ quoted-lbuffer() {
 zle -N quoted-lbuffer
 bindkey '^[q' quoted-lbuffer
 
-
-
 unescape-lbuffer() {
     LBUFFER=$(printf '%s' "${LBUFFER}" | sed 's/\\//g;s/\\\\/\\/g;') || LBUFFER="${LBUFFER}"
     return
@@ -462,7 +341,7 @@ emtype() {
            fi
            ;;
     esac
-    return
+    return 0
 }
 zle -N emtype
 bindkey -M emacs '^[e' emtype
@@ -498,7 +377,7 @@ bindkey -M emacs '^[\' shell-escape-last-word
 # Ctrl-x + Enter swallows launched app
 acceptandswallow() {
    xdotool key --clearmodifiers super+shift+space
-   dwmswallow $WINDOWID
+   dwmswallow "$WINDOWID"
    zle accept-line
 }
 zle -N accept-line-swallow acceptandswallow
@@ -581,20 +460,24 @@ bindkey '^X^B' fzfbm
 #  bindkey '^X^Y' tmxzf
 
 cfg-edit() {
+    emulate -L zsh ;
     find ~/.config/{mpv,lf,nsxiv,nvim,shell,x11,zathura,picom,ncmpcpp,newsboat,mpd,ytfzf,zsh,yazi} ~/.local/src/{dwm,st,dmenu,dwmblocks} ~/Templates/{nix,dwm,dwmblocks,xmouseless,st,dotfiles} ~/.local/bin -type f | \
         grep -vE '[#~]' | fzf --multi --print0 |\
         while IFS= read -r -d '' f; do
             if [ -f "$f" ] || [ -d "$f" ]; then
                 emc "$f" || { echo "failed to open $f" >&2 ; return 1 ; }
-                echo "$f" | grep -Eq '(alias|zsh|functions)' && { zle -I; source "$f" 2>/dev/null ; continue; }
+                echo "$f" | grep -Eq '(alias|zsh|functions)' && {
+                    zle -I ;
+                    cat "$f" | source /dev/stdin 2>/dev/null
+                }
             fi
-        done
+        done  >/dev/null 2>&1
     return 0
 }
 zle -N cfg-edit
 bindkey '^X^F' cfg-edit
 
-fzf-rsync () { "$HOME/.local/bin/fzhsync" "$@" || return 1 ; return  0 ; }
+fzf-rsync () { ( "$HOME/.local/bin/fzhsync" "$@" && return 0 ) || return 1 ; }
 zle -N fzf-rsync
 bindkey '^X^H' fzf-rsync
 
@@ -611,17 +494,9 @@ bindkey -M viins '^X^R' scrnshot-sync
 bindkey -M vicmd '^X^R' scrnshot-sync
 bindkey -M emacs '^X^R' scrnshot-sync
 
-# editzshrc() {
-#     $EDITOR /home/cf/.config/zsh/.zshrc
-#     zle -I; source /home/cf/.config/zsh/.zshrc
-# }
-# zle -N editzshrc
-# bindkey '^X^Z' editzshrc
-
 editzshrc() {
-   ( $EDITOR ~/.zshrc ; setsid -f "$TERMINAL" >/dev/null 2>&1 ; exit ) || return 1
-   zle -I ; exit ; zle accept-line 2>/dev/null || return 1
-   return 0
+   ( devour emacsclient -c -s "$EMACS_SOCKET_NAME" ~/.zshrc && cat ~/.zshrc | source /dev/stdin 2>/dev/null ) || return 1
+   return
 }
 zle -N editzshrc
 bindkey '^X^Z' editzshrc
@@ -632,26 +507,20 @@ tmux-attach-to() {
 zle -N tmux-attach-to
 [[ -z "$TMUX" ]] && bindkey '^X^A' tmux-attach-to
 
-primary_echo() {
-    xa_listen -x
-}
+primary_echo() { ( xa_listen -x && return 0 ) || return 1 ; }
 zle -N primary_echo
 # ctrl-x ctrl-v
 bindkey '^X^v' primary_echo
 
-# swalminibuffer() {
-#     xswal -t "minibuffer" || return 1 ;
-#     return 0 ;
-# }
-# zle -N swalminibuffer
+xswal-select() {  ( xswal -x && return 0 ) || return 1 ; }
+zle -N xswal-select
 # ctrl-x ctrl-g when terminal is not in Emacs
-# [[ -z "$INSIDE_EMACS" ]] && bindkey '^X^G' swalminibuffer
+[[ -z "$INSIDE_EMACS" ]] && bindkey '^X^G' xswal-select
 
 sshop() {
     emulate -L zsh
     t=$(grep -iE '^(host)\s? ' ~/.ssh/config| sed 's/^Host //;s/[[:space:]]//g' | fzf)
-    ( [ -n "$t" ] && ssh "${t}" ) || return 1
-    return 0
+    ( [ -n "$t" ] && ssh "${t}" && return 0 ) || return 1
 }
 zle -N sshop
 bindkey -M viins '^X^S' sshop
@@ -672,7 +541,7 @@ export YAZI_FILE_ONE="$(which file)"
 export YAZI_ZOXIDE_OPTS="--recent"
 
 y() {
-    tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
     yazi "$@" --cwd-file="$tmp"
     if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
         builtin cd -- "$cwd" ;
@@ -765,6 +634,7 @@ alias dash="ENV=~/.env rlwrap -n dash -i"
 [ -e /etc/profile.d/nix.sh ] && . /etc/profile.d/nix.sh
 [ "$NIX_PATH" = "nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs" ] || NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs"
 export NIX_PATH
+export PATH="$PATH:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin"
 
 # dwm blocks statusbar
 #  DWMBAR=$(xwininfo -root -tree | grep '("dwm" "dwm")' | awk '{print $1}')
@@ -778,15 +648,13 @@ export NIX_PATH
 #      [ -n "$barpid" ] && echo "$barpid" > "$STATUSBAR"
 #  fi
 
-dwmbar=$(pgrep dwmblock | xargs -r ps | grep ${GPG_TTY##*/} | awk '{print $1}')
-DWMBLOCKS=${dwmbar:-"dwmblocks"}
-export DWMBLOCKS
-export DOT="$HOME/.dotf"
+# dwmbar=$(pgrep dwmblock | xargs -r ps | grep -E "${GPG_TTY##*/}" | tail -n 1 | awk '{print $1}')
+# DWMBLOCKS=${dwmbar:-"dwmblocks"}
+# export DWMBLOCKS
+# export DOT="$HOME/.dotf"
 
 # Pre-export the current cmdline
 preexec() { export LAST_CMD="$1" ; }
-
-export PATH="$PATH:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin"
 
 # Fast syntax highlighting
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null

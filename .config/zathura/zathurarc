@@ -166,7 +166,7 @@ set scroll-page-aware true
 
 # Defines the X clipboard into which mouse-selected data will be written.
 # Possible values: "clipboard", "primary"
-set selection-clipboard primary
+set selection-clipboard clipboard
 # Defines if a notification should be displayed after selecting text.
 set selection-notification false
 

@@ -121,9 +121,6 @@ Meta-l: downcase-word
 "\M-P":   non-incremental-reverse-search-history
 "\M-\\":  delete-horizontal-space
 
-# -------------------------
-# vi-insert keymap
-# -------------------------
 set keymap vi-insert
 
 # Emacs-like navigation
@@ -156,6 +153,7 @@ Meta-*: insert-completions
 Meta-=: possible-completions
 
 # History and Args
+
 Meta-.: yank-last-arg
 Meta-_: yank-last-arg
 
@@ -164,6 +162,7 @@ Meta-_: yank-last-arg
 "\C-x\C-x": exchange-point-and-mark
 
 # Word operations
+
 Meta-b: backward-word
 Meta-f: forward-word
 Meta-d: kill-word
@@ -184,7 +183,8 @@ Meta-l: downcase-word
 "\M-U": upcase-word
 "\M-Y": yank-pop
 
-# Misc features
+# Misc kbd macros
+
 "\M-\C-g": abort
 "\M-\C-h": backward-kill-word
 "\M-\C-i": tab-insert
@@ -203,9 +203,6 @@ Meta-l: downcase-word
 
 $endif
 
-# -------------------------
-# Bash-specific extras
-# -------------------------
 $if Bash
 "\C-xp": "PATH=${PATH}\e\C-e\C-a\ef\C-f"
 "\C-x\"": "\"\"\C-b"

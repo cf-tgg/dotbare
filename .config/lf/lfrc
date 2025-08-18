@@ -1,5 +1,5 @@
 # lfrc --- lf configuration file -*- mode: sh; -*- vim:ft=sh:sw=2:ts=2:sts=2:et:
-# Time-stamp: <2025-08-11 11:44:27 cf>
+# Time-stamp: <2025-08-17 00:21:04 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #
 # * Note on Image Previews
@@ -44,14 +44,18 @@ cmd open ${{
 		       lf -remote "send toggle"
 		   done &
 		 ;;
-	audio/*|video/x-ms-asf) setsid -f mpv "$f" -quiet --audio-display=embedded-first ;;
+	audio/*|video/x-ms-asf) setsid -f mpv "$f" -quiet --audio-display=embedded-first >/dev/null 2>&1 ;;
 	video/*) setsid -f mpv "$f" -quiet >/dev/null 2>&1 ;;
 	application/pdf|application/vnd.djvu|application/epub*)
-            setsid -f zathura "$fx" >/dev/null 2>&1
-            xdotool key super+4 ;;
+            setsid -f zathura "$fx" >/dev/null 2>&1 ;;
 	application/pgp-encrypted) $EDITOR "$fx" ;;
-	application/vnd.openxmlformats-officedocument.wordprocessingml.document|application/vnd.oasis.opendocument.text|application/vnd.openxmlformats-officedocument.spreadsheetml.sheet|application/octet-stream|application/vnd.oasis.opendocument.spreadsheet|application/vnd.oasis.opendocument.spreadsheet-template|application/vnd.openxmlformats-officedocument.presentationml.presentation|application/vnd.oasis.opendocument.presentation-template|application/vnd.oasis.opendocument.presentation|application/vnd.ms-powerpoint|application/vnd.oasis.opendocument.graphics|application/vnd.oasis.opendocument.graphics-template|application/vnd.oasis.opendocument.formula|application/vnd.oasis.opendocument.database) setsid -f libreoffice "$fx" >/dev/null 2>&1 ;;
-        *) for f in "$fx"; do setsid -f $OPENER "$f" >/dev/null 2>&1 ; done ;;
+	application/vnd.openxmlformats-officedocument.wordprocessingml.document|application/vnd.oasis.opendocument.text|application/vnd.openxmlformats-officedocument.spreadsheetml.sheet|application/octet-stream|application/vnd.oasis.opendocument.spreadsheet|application/vnd.oasis.opendocument.spreadsheet-template|application/vnd.openxmlformats-officedocument.presentationml.presentation|application/vnd.oasis.opendocument.presentation-template|application/vnd.oasis.opendocument.presentation|application/vnd.ms-powerpoint|application/vnd.oasis.opendocument.graphics|application/vnd.oasis.opendocument.graphics-template|application/vnd.oasis.opendocument.formula|application/vnd.oasis.opendocument.database)
+           setsid -f libreoffice "$fx" >/dev/null 2>&1
+           ;;
+        *) for f in "$fx"; do
+               setsid -f $OPENER "$f" >/dev/null 2>&1
+           done
+           ;;
     esac
 }}
 
@@ -92,7 +96,7 @@ cmd extract ${{
 			*.7z)        7z x $fx        ;;
 			*.tar.xz)    tar xf $fx      ;;
 		esac
-	} || return
+	} || true
 }}
 
 cmd delete ${{
@@ -107,10 +111,11 @@ cmd delete ${{
 cmd moveto ${{
 	clear; tput cup $(($(tput lines)/3)); tput bold
 	set -f
-	clear; echo "Move destination:"
-	dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ~/.config/shell/bm-dirs | fzf | sed "s|~|$HOME|" | sed "s|${XDG_CONFIG_HOME:-$HOME/.config}|cf|")" &&
+	clear;
+        echo "Move destination:"
+	dest=$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ~/.config/shell/bm-dirs | fzf) && \
 	for x in $fx; do
-		eval mv -iv \"$x\" \"$dest\"
+		eval $(mv -iv \"$x\" \"$dest\") || true
 	done && notify-send "🚚 File(s) moved." "File(s) moved to $dest."
 }}
 # dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-dirs | fzf | sed 's|~|$HOME|')" &&
