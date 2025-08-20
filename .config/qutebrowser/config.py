@@ -1,4 +1,4 @@
-# config.py --- qutebrowser config -*- mode: pyhon-ts; -*-
+# config.py --- qutebrowser config -*- mode: python-ts; -*-
 
 config.load_autoconfig(False)
 c.aliases = {'GG': 'session-load GG', 'q': 'close', 'qa': 'quit', 'w': 'session-save', 'wconf': 'config-write-py --force', 'wq': 'quit --save', 'wqa': 'quit --save', 'load': 'session-load', 'src': 'config-source'}
@@ -10,7 +10,8 @@ c.content.autoplay = False
 c.content.cookies.accept = 'no-3rdparty'
 config.set('content.cookies.accept', 'all', 'chrome-devtools://*')
 config.set('content.cookies.accept', 'all', 'devtools://*')
-config.set('content.geolocation', True, 'https://www.google.com')
+config.set('content.geolocation', True, 'https://maps.google.com')
+config.set('content.geolocation', False, 'https://www.google.com')
 config.set('content.geolocation', False, 'https://www.qub.ca')
 config.set('content.geolocation', False, 'https://www.tuango.ca')
 config.set('content.headers.accept_language', '', 'https://matchmaker.krunker.io/*')
@@ -50,9 +51,9 @@ config.set('content.media.video_capture', True, 'https://www.messenger.com')
 config.set('content.media.video_capture', True, 'https://www.messenger.com/*/*')
 config.set('content.media.video_capture', True, 'https://www.facebook.com')
 config.set('content.media.video_capture', True, 'https://teams.microsoft.com')
-config.set('content.notifications.enabled', True, 'https://www.facebook.com')
-config.set('content.notifications.enabled', True, 'https://www.netflix.com')
-config.set('content.notifications.enabled', True, 'https://www.reddit.com')
+config.set('content.notifications.enabled', False, 'https://www.facebook.com')
+config.set('content.notifications.enabled', False, 'https://www.netflix.com')
+config.set('content.notifications.enabled', False, 'https://www.reddit.com')
 config.set('content.notifications.enabled', True, 'https://teams.live.com')
 config.set('content.notifications.enabled', True, 'https://teams.microsoft.com')
 config.set('content.notifications.enabled', False, 'https://www.tiktok.com')
@@ -60,25 +61,25 @@ c.content.notifications.presenter = 'libnotify'
 config.set('content.register_protocol_handler', True, 'https://mail.google.com?extsrc=mailto&url=%25s')
 config.set('content.register_protocol_handler', True, 'https://outlook.office.com?mailtouri=%25s')
 config.set('content.register_protocol_handler', True, 'https://outlook.live.com?mailtouri=%25s')
-config.set('content.register_protocol_handler', False, 'https://mail.proton.me#mailto=%25s')
+config.set('content.register_protocol_handler', True, 'https://mail.proton.me#mailto=%25s')
 
-c.content.user_stylesheets = ['~/Templates/css/style.css']
+c.content.user_stylesheets = ['~/Templates/css/style.css', '~/Templates/css/cgpt.css']
 c.completion.shrink = True
 c.completion.scrollbar.width = 0
 c.downloads.location.prompt = True
 c.downloads.position = 'bottom'
 c.downloads.remove_finished = 3000
-c.editor.command = ['emacsclient', '-c', '--socket-name=/run/user/1000/emacs/server', '+{line}:{column}', '{file}', '-f', 'delete-other-windows']
-c.hints.border = '1px #0D0D0D #cccccc'
+c.editor.command = ['emacsclient', '-c', '-n', '--alternate-editor=', '--socket-name=/run/user/1000/emacs/server', '+{line}:{column}', '{file}', '-f', 'delete-other-windows']
+c.hints.border = '1px #0D0D0D #00020b'
 c.scrolling.bar = 'overlay'
 c.scrolling.smooth = False
 c.statusbar.show = 'never'
 c.statusbar.position = 'top'
 c.tabs.show = 'switching'
 c.tabs.show_switching_delay = 10000
-c.url.default_page = 'file:///home/cf/Templates/html/startpage/startpage.html'
+c.url.default_page = 'file:///home/cf/Templates/html/startpage/backpage.html'
 c.url.searchengines = {'DEFAULT': 'https://duckduckgo.com/?q={}', '!': 'https://duckduckgo.com/?q=!{}', 'archwiki': 'https://duckduckgo.com/?q=!archwiki {}',  'stract': 'https://stract.com/search?ss=false&sr=N4IgNglg1gpgJiAXAbQLoBoRwgZ0rBFDEAIzAHsBjApNAXyA&q={}&optic=&gl=All'}
-c.url.start_pages = 'file:///home/cf/Templates/html/startpage/startpage.html'
+c.url.start_pages = 'file:///home/cf/Templates/html/startpage/backpage.html'
 c.window.transparent = False
 c.zoom.default = '100%'
 c.zoom.levels = ['25%', '30%', '35%', '40%', '45%', '50%', '55%', '60%', '65%', '70%', '75%', '80%', '85%', '90%', '95%', '100%', '105%', '110%', '115%', '120%', '125%', '130%', '135%', '140%', '145%', '150%', '155%', '160%', '165%', '170%', '175%', '180%', '185%', '190%', '195%', '200%', '205%', '210%', '215%', '220%', '225%', '230%', '235%', '240%', '245%', '250%', '255%', '260%', '265%', '270%', '275%', '280%', '285%', '290%', '295%', '300%', '305%', '310%', '315%', '320%', '325%', '330%', '335%', '340%', '345%', '350%', '355%', '360%', '365%', '370%', '375%', '380%', '385%', '390%', '395%', '400%', '405%', '410%', '415%', '420%', '425%', '430%', '435%', '440%', '445%', '450%', '455%', '460%', '465%', '470%', '475%', '480%', '485%', '490%', '495%', '500%']
@@ -88,7 +89,7 @@ c.colors.completion.even.bg = '#010101'
 c.colors.completion.category.bg = '#020202'
 c.colors.completion.category.border.bottom = '#010101'
 c.colors.completion.item.selected.fg = '#cfcfcf'
-c.colors.completion.item.selected.bg = '#111111'
+c.colors.completion.item.selected.bg = '#121212'
 c.colors.completion.item.selected.border.top = '#111111'
 c.colors.completion.item.selected.border.bottom = '#cfcfcf'
 c.colors.completion.item.selected.match.fg = '#ffffff'
@@ -96,16 +97,16 @@ c.colors.completion.match.fg = '#ffffff'
 c.colors.completion.scrollbar.fg = '#000000'
 c.colors.completion.scrollbar.bg = '#111111'
 c.colors.downloads.system.bg = 'hsl'
-c.colors.hints.fg = 'white'
+c.colors.hints.fg = 'rgba(232, 232, 232, 0.85)'
 c.colors.hints.bg = 'qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 0.4), stop:1 rgba(0, 0, 0, 0.9))'
-c.colors.hints.match.fg = '#cbba92'
+c.colors.hints.match.fg = '#cbb19c'
 c.colors.statusbar.normal.bg = '#00020b'
 c.colors.statusbar.passthrough.fg = '#4c1e48'
 c.colors.statusbar.passthrough.bg = '#190618'
 c.colors.tabs.bar.bg = '#111111'
 c.colors.tabs.odd.bg = '#121212'
 c.colors.tabs.even.bg = '#121212'
-c.colors.webpage.bg = '#00020b'
+c.colors.webpage.bg = '#000000'
 c.colors.webpage.preferred_color_scheme = 'dark'
 c.colors.webpage.darkmode.enabled = True
 c.colors.webpage.darkmode.policy.images = 'never'
@@ -127,16 +128,21 @@ c.fonts.web.size.minimum = 10
 # Bindings for normal mode
 
 config.bind('.', 'cmd-repeat-last')
+
 config.bind(',,', 'jseval --quiet --file ~/.config/qutebrowser/userscripts/toggle_visibility.js')
+config.bind(',.', 'jseval --quiet --file ~/.config/qutebrowser/userscripts/iiie.js')
+config.bind('td', 'jseval --quiet --file ~/.config/qutebrowser/userscripts/iie2.js')
+config.bind('<?', 'set content.user_stylesheets \'["~/Templates/css/style.css", "~/Templates/css/glassy.css"]\'')
+config.bind('>?', 'set content.user_stylesheets \'["~/Templates/css/style.css", "~/Templates/css/cgpt.css"]\'')
+config.bind(',b', ':set statusbar.show in-mode')
 config.bind(',B', ':set statusbar.show never')
+config.bind(',d', 'set downloads.location.prompt true')
 config.bind(',D', 'set downloads.location.prompt false')
+config.bind(',m', 'spawn --detach mpv {url}')
 config.bind(',M', 'hint links spawn --detach mpv {hint-url}')
 config.bind(',R', ':spawn --detach st -e readit -c -l en')
 config.bind(',U', 'hint links spawn umpv {hint-url}')
-config.bind(',b', ':set statusbar.show in-mode')
-config.bind(',d', 'set downloads.location.prompt true')
 config.bind(',l', 'spawn ytcl {url};;cmd-later 100 spawn ytln {url}')
-config.bind(',m', 'spawn --detach mpv {url}')
 config.bind(',rf', 'spawn --detach st -e readit -c -l fr && xdotool key alt+h key h;;')
 config.bind(',rs', 'hint --rapid links spawn rssadd {hint-url}')
 config.bind(',ta', 'cmd-set-text -s :spawn --userscript taskadd')
@@ -149,10 +155,10 @@ config.bind(',yt', 'spawn --detach mpv {url}')
 config.bind(',yu', 'hint links spawn --detach ydl {hint-url}')
 config.bind('0', 'hint links userscript append_hint_url')
 config.bind('1', 'zoom 100%')
-config.bind('2', 'zoom 200%')
+config.bind('2', 'zoom 185%')
 config.bind('3', 'zoom 150%')
-config.bind('4', 'zoom 120%')
-config.bind('5', 'zoom 80%')
+config.bind('4', 'zoom 125%')
+config.bind('5', 'zoom 85%')
 config.bind('6', 'quickmark-load qai')
 config.bind('7', 'hint --rapid links spawn ydl {hint-url}')
 config.bind('8', 'spawn ydl {url}')
@@ -161,11 +167,13 @@ config.bind(';D', 'hint --rapid links spawn ydl {hint-url}')
 config.bind(';M', 'hint links spawn mpv {hint-url}')
 config.bind(';N', 'hint --rapid links spawn mpv {hint-url}')
 config.bind(';l', 'hint links spawn ytln {hint-url}')
-config.bind('<?', 'set content.user_stylesheets ""')
+
 config.bind('<Alt+Shift+j>', 'zoom-out')
 config.bind('<Alt+Shift+k>', 'zoom-in')
 config.bind('<Alt+c>', ':fake-key <Ctrl+c>;;yank selection')
-config.bind('<Alt+v>', ':fake-key <ctrl+v>')
+config.bind('<Alt+w>', ':fake-key <Ctrl+c>;;yank selection')
+config.bind('<Alt+v>', ':fake-key <Ctrl+v>')
+config.bind('<Ctrl+y>', ':fake-key <Ctrl+v>')
 config.bind('<Backspace>', 'fake-key <Backspace>')
 config.bind('<Ctrl+->', 'zoom-out')
 config.bind('<Ctrl+=>', 'zoom-in')
@@ -173,40 +181,37 @@ config.bind('-', 'zoom-out')
 config.bind('=', 'zoom-in')
 config.bind('+', "zoom 100%")
 config.bind('<Ctrl+a>', 'mode-enter insert;;fake-key <Ctrl+a>;;fake-key <Ctrl+c>;;mode-leave')
-config.bind('<Ctrl+i>', 'fake-key <Tab>')
 config.bind('<Ctrl+s>', 'search-next')
+config.bind('<Ctrl+i>', 'fake-key <Tab>')
 config.bind('<Ctrl+Alt+i>', 'fake-key <Backtab>')
 config.bind('<Alt+w>', 'fake-key <Ctrl+c>;;yank selection')
-config.bind('<Ctrl+c>', 'fake-key <Ctrl+c>')
-config.bind('<Ctrl+d>', 'scroll-page 0 0.8')
+config.bind('<Ctrl+c>', 'fake-key <Ctrl+c>;;yank-selection')
 config.bind('<Ctrl+Alt+Shift+e>', 'config-edit')
 config.bind('<Ctrl+e>', 'mode-enter insert;;fake-key <End>')
-config.bind('<Ctrl+u>', 'scroll-page 0 -0.8')
+config.bind('<Ctrl+d>', 'scroll-page 0 0.9')
+config.bind('<Ctrl+u>', 'scroll-page 0 -0.9')
 config.bind('<Ctrl+z>', 'fake-key <Ctrl+z>')
 config.bind('<Enter>', 'fake-key <Enter>')
 config.bind('<Space>', 'scroll-page 0 0.6')
-config.bind('>?', 'set content.user_stylesheets \'["~/Templates/css/root_sensible.css", "~/Templates/css/cgpt.css"]\'')
 config.bind('EE', 'fake-key <ctrl+c>;;yank selection;;spawn sleep 0.3;;spawn --detach st -e vimclip')
 config.bind('TT', 'tab-only')
 config.bind('UU', 'edit-text {url}')
 config.bind('WE', 'spawn wikilocale {url} ;; cmd-later 500 open {clipboard}')
 config.bind('Y', 'fake-key <Ctrl+c>;;yank selection')
-config.bind('d', 'scroll-page 0 0.4')
-config.bind('u', 'scroll-page 0 -0.4')
+config.bind('d', 'scroll-page 0 0.4;;fake-key <down>;;fake-key <down>')
+config.bind('u', 'scroll-page 0 -0.4;;fake-key <up>;;fake-key <up>')
 config.bind('<Ctrl+n>', 'fake-key <down>')
 config.bind('<Ctrl+p>', 'fake-key <up>')
 config.bind('n', 'fake-key <down>')
 config.bind('p', 'fake-key <up>')
 config.bind('N', 'next-page')
 config.bind('P', 'previous-page')
-config.bind('td', 'jseval --quiet --file ~/.config/qutebrowser/userscripts/mkdragelm.js')
 config.bind('tt', 'fake-key <Ctrl+c>;;yank selection;;spawn tts "$(xclip -selection clipboard -o)"')
-config.bind('<Ctrl+g>', 'fake-key <Escape>')
+config.bind('<Ctrl+g>', 'fake-key <Escape>;;mode-leave')
 
 ## Tabs
 config.bind('gG', ':tab-give 1')
 config.bind('gT', 'cmd-set-text :tab-take -k')
-config.bind('<Ctrl+.>', 'command-accept --rapid', mode='command')
 
 # Bindings for caret mode
 config.bind('EE', 'fake-key <ctrl+c>;;yank selection;;spawn sleep 0.3;;spawn --detach st -e vimclip', mode='caret')
@@ -233,14 +238,36 @@ config.bind('u', 'scroll-page 0 -0.4', mode='caret')
 
 # Bindings for command mode
 config.bind('<Alt+c>', 'fake-key <Ctrl+c>', mode='command')
-config.bind('<Alt+m>', 'fake-key <Home>', mode='command')
+config.bind('<Alt+w>', 'fake-key <Ctrl+c>', mode='command')
+config.bind('<Ctrl+y>', 'fake-key <Ctrl+v>', mode='command')
 config.bind('<Alt+v>', 'fake-key <Ctrl+v>', mode='command')
-#  config.bind('<Ctrl+->', 'zoom-out', mode='command')
-#  config.bind('<Ctrl+=>', 'zoom-in', mode='command')
+config.bind('<Alt+p>', 'insert-text {primary}', mode='command')
+config.bind('<Ctrl+,>', 'command-accept --rapid', mode='command')
+config.bind('<Ctrl+.>', 'command-repeat', mode='command')
 config.bind('<Ctrl+n>', ':completion-item-focus next', mode='command')
 config.bind('<Ctrl+p>', ':completion-item-focus prev', mode='command')
+config.bind('<Alt+m>', 'fake-key <Home>', mode='command')
+config.bind('<Ctrl+a>', 'fake-key <Home>', mode='command')
+config.bind('<Ctrl+e>', 'fake-key <End>', mode='command')
 config.bind('<Escape>', 'mode-leave', mode='command')
 config.bind('<Ctrl+g>', 'mode-leave', mode='command')
+config.bind('<Ctrl+h>', 'fake-key <Backspace>', mode='command')
+config.bind('<Ctrl+d>', 'fake-key <Delete>', mode='command')
+config.bind('<Alt+d>', 'fake-key <Ctrl+Delete>', mode='command')
+config.bind('<Alt+u>', 'fake-key <Ctrl+Shift+Home>;;fake-key <Ctrl+x>', mode='command')
+config.bind('<Ctrl+f>', 'fake-key <Right>', mode='command')             # forward-char
+config.bind('<Ctrl+b>', 'fake-key <Left>', mode='command')              # backward-char
+config.bind('<Alt+f>', 'fake-key <Ctrl+Right>', mode='command')             # forward-word
+config.bind('<Alt+b>', 'fake-key <Ctrl+Left>', mode='command')              # backward-word
+config.bind('<Ctrl+Shift+f>', 'fake-key <Shift+Right>', mode='command')     # mark-forward-char
+config.bind('<Ctrl+Shift+b>', 'fake-key <Shift+Left>', mode='command')      # mark-backward-char
+config.bind('<Ctrl+Shift+a>', 'fake-key <Shift+Home>', mode='command')      # mark-beginning-of-line
+config.bind('<Ctrl+Shift+e>', 'fake-key <Shift+End>', mode='command')       # mark-end-of-line
+config.bind('<Alt+Shift+f>', 'fake-key <Ctrl+Shift+Right>', mode='command') # mark-forward-word
+config.bind('<Alt+Shift+b>', 'fake-key <Ctrl+Shift+Left>', mode='command')  # mark-backward-word
+config.bind('<Alt+Shift+a>', 'fake-key <Ctrl+Shift+Home>', mode='command')  # mark-to-beginning-of-text
+config.bind('<Alt+Shift+e>', 'fake-key <Ctrl+Shift+End>', mode='command')   # mark-end-of-text
+config.bind('<Alt+Shift+h>', 'fake-key <Shift+Home>', mode='command')       # mark-beginning-of-line
 
 # Bindings for insert mode
 
