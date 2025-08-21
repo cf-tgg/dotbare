@@ -301,11 +301,11 @@ config.bind('<Ctrl+d>', 'fake-key <Delete>', mode='insert')    # delete-char
 config.bind('<Ctrl+h>', 'fake-key <Backspace>', mode='insert') # backward-delete-char
 config.bind('<Alt+b>', 'fake-key <Ctrl+Left>', mode='insert')  # backward-word
 config.bind('<Alt+f>', 'fake-key <Ctrl+Right>', mode='insert') # forward-word
-
 config.bind('<Alt+a>', 'fake-key <Ctrl+Home>', mode='insert') # move-to-text-start
 config.bind('<Alt+e>', 'fake-key <Ctrl+End>', mode='insert')  # move-to-end-of-text
 config.bind('<Alt+i>', 'fake-key <Home>;;fake-key <Ctrl+Right>;;fake-key <Ctrl+Left>', mode='insert') # back-to-indentation
 
+config.bind('<Alt+d>', 'fake-key <Ctrl+Right>;;fake-key <Ctrl+Left>;;fake-key <Ctrl+x>', mode='insert')
 config.bind('<Alt+c>', 'fake-key <Ctrl+c>', mode='insert')  # copy (st)
 config.bind('<Alt+v>', 'fake-key <Ctrl+v>', mode='insert')  # paste (st)
 config.bind('<Ctrl+y>', 'fake-key <Ctrl+v>', mode='insert') # yank

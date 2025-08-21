@@ -43,8 +43,7 @@
         "::-webkit-scrollbar-thumb",
         "::-webkit-scrollbar-track",
         "#WIX_ADS",
-        ".text-token-text-secondary", /* ChatGPT limit warning */
-        ".block.z-20",
+        ".block.z-21",
         "#truste-consent-track",      /* RedHat Cookie Consent */
         ".YtwTopBannerImageTextIconButtonedLayoutViewModelHost",
         ".YtwAdImageViewModelHostImage",
@@ -83,7 +82,6 @@
         "#CookiePrivacyNotice",
         "#owaadbar1",
         ".StyledButton-sc-qe3ace-0",
-        ".js-focus-visible",                     /* RedHat Chat-popup */
         ".drift-widget-controller.drift-widget-controller--align-right.square.drift-widget-controller--custom-icon.drift-widget-controller--avatar",
         ".drift-widget-message-preview-wrapper",
         ".drift-widget-controller-icon.square",
@@ -104,15 +102,14 @@
 
     const toggleable = [
         "#vector-page-titlebar-toc-label",      /* Wikipedia TOC sticky widget */
-        ".dJnomT",                              /* GitHub README Header */
-        ".gOHzTT",                              /* gh issue sticky header */
         "#secondary-nav-component",             /* RedHatSecondary Nav */
         "#partial-discussion-sidebar",
+        ".OverviewRepoFiles-module__Box_3--Bi2jM",
         ".Layout-sidebar",
-        ".gh-header-shadow",
+        ".gh-header-shadow",                   /* Github */
+        ".ecombw",
         ".js-sticky",
         "span .flex",                           /* GPT prompts */
-        "div #thread-bottom-container",
         ".no-draggable",
         "#page-header",
         ".header",
@@ -170,23 +167,26 @@
 
     hideElements(blacklist);
     toggleVisibility(toggleable);
-
-let toggleButton = document.querySelector(".toggleButton");
+    
+    let toggleButton = document.querySelector(".toggleButton");
     if (toggleButton === null) {
         toggleButton = document.createElement("button");
         toggleButton.innerText = "";
         toggleButton.className = "toggleButton";
-        toggleButton.style.bottom = "30px";
+        toggleButton.style.position = "fixed";
+        toggleButton.style.bottom = "60px";
         toggleButton.style.right = "30px";
         toggleButton.style.zIndex = "9999";
-        toggleButton.classList.add("liquid-glass", "rounded-full", "justify-center");
-        toggleButton.style.position = "fixed";
-        toggleButton.style.color = "rgba(255, 255, 255, 0.6)";
-        toggleButton.style.display = "flex";
+        toggleButton.style.paddingRight = "10px";
+        toggleButton.classList.add("liquid-glass", "rounded-full", "items-center", "justify-center", "bg-clip-padding");
         toggleButton.style.backgroundColor = "rgba(0, 0, 0, 0.25)";
+        toggleButton.style.backdropFilter = "blur(3px)";
         toggleButton.style.fontSize = "24px";
-        toggleButton.style.border = "none";
+        toggleButton.style.width = "2rem";
+        toggleButton.style.height = "2rem";
+        toggleButton.style.color = "rgba(255, 255, 255, 0.5)";
         toggleButton.style.cursor = "pointer";
+
         toggleButton.addEventListener("click", () => {
             toggleVisibility(toggleable);
             if (toggleButton.innerText == "") {
@@ -205,6 +205,7 @@ let toggleButton = document.querySelector(".toggleButton");
 
     toggleButton.addEventListener('mousedown', (e) => {
         isDragging = true;
+        toggleButton.style.cursor = "grabbing";
         offsetX = e.clientX - toggleButton.getBoundingClientRect().left;
         offsetY = e.clientY - toggleButton.getBoundingClientRect().top;
         e.preventDefault();
@@ -212,7 +213,6 @@ let toggleButton = document.querySelector(".toggleButton");
 
     document.addEventListener('mousemove', (e) => {
         if (isDragging) {
-            toggleButton.classList.add("dragging");
             toggleButton.style.left = `${e.clientX - offsetX}px`;
             toggleButton.style.top = `${e.clientY - offsetY}px`;
             toggleButton.style.bottom = 'auto';
@@ -220,6 +220,9 @@ let toggleButton = document.querySelector(".toggleButton");
         }
     });
 
-    document.addEventListener('mouseup', () => { isDragging = false; toggleButton.classList.remove("dragging"); });
-
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        toggleButton.style.cursor = "pointer";
+    });
 })();
+
