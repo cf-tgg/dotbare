@@ -64,7 +64,8 @@ emacs.minibuffer:minibuffer
 st.alpha: 0.9
 st.alphaOffset: 0.1
 st.borderpx: 1
-st.font: Monospace-11
+st.font: IosevkaTerm Nerd Font:size=11
+!  st.font: Monospace-11
 !  st.font: Aporetic Serif Mono:size=11
 
 st.color0:      #181818
@@ -83,8 +84,8 @@ st.color12:     #93acc9
 st.color13:     #d3869b
 st.color14:     #95a99f
 st.color15:     #ecdbc2
-st.background:  #08090b
-st.foreground:  #efecef
+st.background:  #010000
+st.forground:   #ffffff
 st.cursorColor: #ffdd33
 
 ! st.timer.cursorColor: #00000e

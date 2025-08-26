@@ -12,7 +12,8 @@
  */
 
 (() => {
-    // Utility function to hide elements
+
+    // Hide select elements
     function hideElements(selectors) {
         selectors.forEach(selector => {
             const elements = document.querySelectorAll(selector);
@@ -22,7 +23,7 @@
         });
     }
 
-    // Utility function to toggle visibility of elements
+    // Toggle visibility of select elements
     function toggleVisibility(selectors) {
         selectors.forEach(selector => {
             const elements = document.querySelectorAll(selector);
@@ -38,6 +39,43 @@
         });
     }
 
+    // Make select elements draggable
+    function makeDraggable(selectors) {
+        selectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(element => {
+                element.style.position = "fixed";
+                element.style.cursor = "move";
+
+                let offsetX = 0, offsetY = 0, isDragging = false;
+
+                element.addEventListener("mousedown", e => {
+                    isDragging = true;
+                    offsetX = e.clientX - element.offsetLeft;
+                    offsetY = e.clientY - element.offsetTop;
+                    document.body.style.userSelect = "none";
+                });
+
+                document.addEventListener("mousemove", e => {
+                    if (!isDragging) return;
+                    element.style.left = (e.clientX - offsetX) + "px";
+                    element.style.top = (e.clientY - offsetY) + "px";
+                });
+
+                document.addEventListener("mouseup", () => {
+                    isDragging = false;
+                    document.body.style.userSelect = "";
+                });
+            });
+        });
+    }
+
+    const draggables = [
+        "#vector-page-titlebar-toc",
+        ".toggleButton",
+        ".vector-dropdown.vector-main-menu-dropdown",
+    ];
+
     const blacklist = [
         "::-webkit-scrollbar",
         "::-webkit-scrollbar-thumb",
@@ -45,6 +83,7 @@
         "#WIX_ADS",
         ".block.z-21",
         "#truste-consent-track",      /* RedHat Cookie Consent */
+        " div.fEy1Z2XT ",
         ".YtwTopBannerImageTextIconButtonedLayoutViewModelHost",
         ".YtwAdImageViewModelHostImage",
         ".YtwSquareImageViewModelHostImage",
@@ -62,9 +101,10 @@
         ".a2a.a2a_kit_size_36.a2a_floating_style.a2a_default_style",
         ".OINTechPromoRightBarBanner",
         ".widget",
+        "#ghost-portal-root",                 /* FOSS membership overlay */
         ".ot-sdk-row",
-        "#launcher",                             /* Discogs Chat Button */
-        ".ad_container",                         /* discogs overlay crap */
+        "#launcher",                          /* Discogs Chat Button */
+        ".ad_container",                      /* discogs overlay crap */
         ".ad_bottom",
         ".ot-floating-button",
         ".sc-1w3tvxe-0",
@@ -155,6 +195,8 @@
         ".navbar",
         "footer",
         "header",
+        ".bg-main.border-b-border.sticky.top-0",  /* DeepWiki */
+        ".pointer-events-none.fixed.bottom-2",
         ".s-top-bar",
         ".top-bar-container",                     /* GitLab */
         ".l.m.n.o.c",                             /* medium */
@@ -167,11 +209,12 @@
 
     hideElements(blacklist);
     toggleVisibility(toggleable);
-    
+    makeDraggable(draggables);
+
     let toggleButton = document.querySelector(".toggleButton");
     if (toggleButton === null) {
         toggleButton = document.createElement("button");
-        toggleButton.innerText = "";
+        toggleButton.innerText = "+";
         toggleButton.className = "toggleButton";
         toggleButton.style.position = "fixed";
         toggleButton.style.bottom = "60px";
@@ -184,15 +227,15 @@
         toggleButton.style.fontSize = "24px";
         toggleButton.style.width = "2rem";
         toggleButton.style.height = "2rem";
-        toggleButton.style.color = "rgba(255, 255, 255, 0.5)";
+        toggleButton.style.color = "rgba(255, 255, 255, 0.0)";
         toggleButton.style.cursor = "pointer";
 
         toggleButton.addEventListener("click", () => {
             toggleVisibility(toggleable);
-            if (toggleButton.innerText == "") {
+            if (toggleButton.innerText == "+") {
                 toggleButton.innerText = "";
             } else {
-                toggleButton.innerText = "";
+                toggleButton.innerText = "+";
             }
         });
         document.body.appendChild(toggleButton);
@@ -225,4 +268,3 @@
         toggleButton.style.cursor = "pointer";
     });
 })();
-

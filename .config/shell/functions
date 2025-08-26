@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
-# Time-stamp: <2025-08-05 01:04:12 cf>
+# Time-stamp: <2025-08-24 14:35:17 cf>
 #       _          _ _  __
 #   ___| |__   ___| | |/ _|_ __
 #  / __| '_ \ / _ \ | | |_| '_  \
@@ -1572,19 +1572,24 @@ mklocalplaylist() {
            if [ $(file --brief --mime-type "$f") = "video/*" ]; then
                extinf_video_cat "$f" 2>/dev/null
            fi
-        done >"$playlist" ; has_hls_header "$playlist" && linkhandler "$playlist" ;
+        done > "$playlist" ; has_hls_header "$playlist" && linkhandler "$playlist"
 }
 
 mkjpgplaylist() {
     d=${1:-.};
     [ -d "$d" ] || d=$(dirname "$d");
-    playlist="$HOME/$(basename "$d" | sed -e "s/ /-/g;s/[\&/\`\\*.$ ']//g")_$(date +"%Y-%m-%d_%H%M-%S").m3u8" ;
-    find "$d" -type l | while read -r f; do
-           if [ $(file --dereference --brief --mime-type "$f") = "image/jpeg" ]; then
-               exifjpg -M "$f" 2>/dev/null
-           fi
-        done >"$playlist" ;
-    has_hls_header "$playlist" && linkhandler "$playlist" ;
+    playlist="$HOME/$(basename "$d" | sed -e "s/ /-/g;s/[\&/\`\\*.$ ']//g")_$(date +"%Y-%m-%d_%H%M-%S").m3u8"
+    find "$d" -type l,f | while read -r f; do
+           entry=
+           case $(file --dereference --brief --mime-type "$f") in
+               image/jpeg)
+                   entry=$(exifjpg -M "$f" 2>/dev/null)
+                   ;;
+               *)  ;;
+           esac
+           [ -n "$entry" ] && echo >> "$playlist" || continue
+    done
+    has_hls_header "$playlist" && linkhandler "$playlist"
 }
 
 askchar() {
@@ -1612,7 +1617,7 @@ whut() {
             "*is a shell function from*")
                 echo "$t" | awk -F"$dis is a shell function from " '{print $2}' | while read -r f; do
                     [ -f "$f" ] || { echo "$f is not a file" >&2 ; return 1 ; }
-                    line=$(grep -n "$dis" "$f"|cut -d ':' -f1)
+                    line=$( grep -n "$dis" "$f"|cut -d ':' -f1 )
                     [ -n "$line" ] && emc +"${line}" "$f" || emc "$f" || { echo "emc +${line} ${f}" >&2 ; return 1 ; }
                 done
                 return 0
@@ -1673,19 +1678,20 @@ xswl() {
 }
 
 fc-cache-rv() {
-    (fc-cache -rv && sudo fc-cache -rv && wmreup) || return 1
+    ( fc-cache -rv && sudo fc-cache -rv && wmreup ) || return 1
     return 0
 }
 
 strprint() {
     FS=" "
-    while getopts "F:" opt; do
-        case "$opt" in
-            F) FS="$OPTARG" ; break ;;
+    while getopts "F:" OPT ; do
+        case $OPT in
+            F) FS="$OPTARG" ;;
             *) ;;
         esac
     done
-    FS=${FS[1]}
+    shift $(($OPTIND-1))
+    OPTIND=1
     echo "$@" | awk -F"$FS" '{for (i=0;i<=NF;i++) {print "\""$i"\""}}'
     return 0
 }
@@ -1693,15 +1699,14 @@ strprint() {
 svadd() {
     [ $# -gt 0 ] || { printf "svadd <service>\n\t\t => sudo ln -s /run/runit/sv/<service> /run/runit/service\n" ; return 1 ; }
     for sv in "$@" ; do
-        [ -n "$sv" ] || { echo "Error while reading service. Got: '${sv}'" ; continue }
+        [ -n "$sv" ] || { echo "Error while reading service. Got: '${sv}'" ; continue ; }
         [ -d "/etc/runit/sv/$sv" ] || { echo "Could not find $sv in service directory. Is it installed?" ; continue ; }
-        [ -L "/etc/runit/sv/$sv" ] && { echo "$sv is already linked as running service." ; sudo sv status "$sv" 2>&1 ; continue } || continue
+        [ -L "/etc/runit/sv/$sv" ] && { echo "$sv is already linked as running service." ; sudo sv status "$sv" 2>&1 ; continue ; } || continue
         if sudo ln -s /etc/runit/sv/"$sv" /run/runit/service ; then
             sudo sv status "$sv"
         else
             echo "Error while linking $sv. Verify installation and runscript." >&2
         fi
-        continue
     done
     return 0
 }
