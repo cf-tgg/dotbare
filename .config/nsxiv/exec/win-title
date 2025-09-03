@@ -2,11 +2,18 @@
 
 f=$(realpath "$1")
 
+[ -f "$f" ] || exit 1
+
 if exifjpg -t "$f" 2>/dev/null; then
-    TITLE="$(exifjpg -t "$f")"
+    b=$(exifjpg -t "$f")
 else
     b=$(basename "$f")
-    t=${b%.*}
-    TITLE=$(echo "$t" | sed -e 's/_/ /g')
 fi
-[ -n "$TITLE" ] && echo "$TITLE"
+
+t=${b%.*}
+t=$(echo "$b" | sed -e 's/_/ /g')
+
+[ -t 1 ] && echo "$t"
+# notify-send -t 1000 "[nsxiv]" "$t"
+
+exit 0

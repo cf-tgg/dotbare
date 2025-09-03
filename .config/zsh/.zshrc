@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-08-16 23:07:38 cf>
+# Time-stamp: <2025-09-01 03:27:11 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #        __       _          _ _
 #   ___ / _|  ___| |__   ___| | |
@@ -10,7 +10,7 @@
 #
 #                      cf. [zshrc] ❯⟩
 
-autoload -U colors && colors >/dev/null 2>&1
+autoload -U colors && colors
 
 setopt prompt_subst
 
@@ -26,6 +26,8 @@ precmd() {
 }
 
 # Prompt ❯❯
+# PS1='%B%{$fg[white]%}[%n@%{$fg[red]%}%M %{$fg[white]%}%~]${PROMPT_SYMBOL_COLOR}$%{$reset_color%}%b '
+
 if tty | grep -q tty >/dev/null 2>&1 ; then
   PS1='%B%{$fg[magenta]%}%~%{$reset_color%} ${PROMPT_SYMBOL_COLOR}>%{$reset_color%}%b '
 else
@@ -55,22 +57,29 @@ setopt HIST_VERIFY               # Do not execute immediately upon history expan
 setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks from each command line being added to the history list.
 setopt APPEND_HISTORY            # append to history file
 setopt HIST_NO_STORE             # Don't store history commands
-setopt HIST_NO_FUNCTIONS         # Don't store function definitions
+# setopt HIST_NO_FUNCTIONS         # Don't store function definitions
 
 # path check
 export PATH="$(echo "$PATH" | awk -v RS=: -v ORS=: '!a[$1]++' | sed 's/:$//')"
 
 # load extra configs
-for j in "${XDG_CONFIG_HOME:-$HOME/.config}/shell"/{aliases,aliasrc,functions,shortcutrc,shortcutenvrc,zshnameddirrc,ytaliases} ; do
-    [ -f "$j" ] && source "$j" >/dev/null 2>&1 || true
+for f in "${XDG_CONFIG_HOME:-$HOME/.config}/shell"/{aliases,aliasrc,functions,shortcutrc,shortcutenvrc,zshnameddirrc,ytaliases} ; do
+   if [ -f "$f" ]; then
+       source "$f" >/dev/null 2>&1
+   fi
+   unset f
 done
-unset j
 
 ralias() { gpg2 --quiet --no-tty --for-your-eyes-only --decrypt "$(pass ralias)" 2>/dev/null | source /dev/stdin ; }
 
+# Ensure emacs is running the server
+# [ -e "$EMACS_SOCKET_NAME" ] || EMACS_SOCKET_NAME=${EMACS_SERVER_FILE:-"$XDG_RUNTIME_DIR/emacs/server"}
+# [ -z "$(pidof -xs emacs)" ] && emacs -f server-start >/dev/null 2>&1
+
 # Completion
 
-[ -z "$ZDOTDIR" ] && { ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh" ; export ZDOTDIR ; }
+[ -z "$ZDOTDIR" ] && ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
+
 # Base comp dir init
 fpath=($ZDOTDIR $fpath)
 
@@ -106,15 +115,11 @@ bindkey -a Y vi-yank-eol
 bindkey -M visual S add-surround
 
 autoload -Uz run-help
-alias help=run-help
+alias help='run-help'
 
 # Wikiman plugin
 source /usr/share/wikiman/widgets/widget.zsh
-
 bindkey '^X^_' _wikiman_widget
-[ -z "$(pidof -xs emacs)" ] && {
-    setsid -f /usr/local/bin/emacs -f server-start >/dev/null 2>&1
-}
 
 # Use vim keys in tab completion menu
 bindkey -M menuselect 'h' vi-backward-char
@@ -156,7 +161,7 @@ zle -N zle-line-init
 
 # Use lf to switch directories
 lfcd () {
-    tmp="$(mktemp -uq)"
+    tmp=$(mktemp -uq)
     trap 'rm -f $tmp >/dev/null 2>&1 && trap - HUP INT QUIT TERM PWR EXIT' HUP INT QUIT TERM PWR EXIT
     lf -last-dir-path="$tmp" "$@"
     if [ -f "$tmp" ]; then
@@ -165,8 +170,8 @@ lfcd () {
     fi
 }
 
-# bind lfcfd to ctrl-x ctrl-o outside emacs
-[[ -z "$INSIDE_EMACS" ]] && bindkey -s '^X^o' '^ulfcd\n'
+# bind lfcd to ctrl-x ctrl-o outside emacs
+[[ -z "$INSIDE_EMACS" ]] && bindkey -s '^X^O' '^ulfcd\n'
 bindkey -s '^O' '^ulfcd\n'
 bindkey -s '^X^H' '^ubc -lq\n'
 bindkey -s '^X^W' '^ucd "$(dirname "$(fzf)")"\n'
@@ -213,9 +218,22 @@ cleanws() {
     echo "$@" | sed 's/^ *//;s/[[:space:]][[:space:]]*/ /g;s/ *$//'
 }
 
+cleanws_lbuffer() {
+  emulate -L zsh
+  local buf=$(cleanws "${LBUFFER}")
+  LBUFFER="$buf" || return 1
+  return 0
+}
+
 copy_lbuffer() {
   emulate -L zsh
-  ( [ -n "$LBUFFER" ] && echo "$LBUFFER" | xclip -in -selection clipboard 2>/dev/null ) || true
+  local buf="${LBUFFER}"
+  export lbuf="$buf"
+  [ -n "$DISPLAY" ] || return
+  if echo "$lbuf" | xclip -in -selection clipboard 2>/dev/null ; then
+      [ -x "$(command -v notify-send)" ] && notify-send -t 1000 "[copy_buffer]" "$lbuf"
+  fi
+  return 0
 }
 zle -N copy_lbuffer
 bindkey -M viins '^[w' copy_lbuffer
@@ -229,7 +247,7 @@ c_escape_lbuffer() {
   LBUFFER="$buf" || return 1
   return 0
 }
-zle -N copy_lbuffer
+zle -N c_escape_lbuffer
 bindkey -M viins '^[\' c_escape_lbuffer
 bindkey -M vicmd '^[\' c_escape_lbuffer
 bindkey -M emacs '^[\' c_escape_lbuffer
@@ -310,10 +328,10 @@ bindkey -M emacs '^X^[\' unescape-lbuffer
 
 is_alias_type() {
     al="$1"
-    aln=$(grep -rn "${al}=" ~/.config/(shell|zsh) | grep -vE '[~#]' | awk -F ':' '{print $1, $2}')
+    aln=$(grep -rn "${al}='" ~/.config/(shell|zsh) | grep -vE '[~#]' | awk -F ':' '{print $1, $2}')
     f=$(echo "$fnl" | awk '{print $1}')
     l=$(echo "$fnl" | awk '{print $2}')
-    devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c "+${l}" "$f" || true
+    devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c +${l} --file="$f" || true
 }
 
 is_fn_type() {
@@ -321,7 +339,7 @@ is_fn_type() {
     fnl=$(grep -rn "${fn}() " ~/.config/(shell|zsh) | grep -vE '[~#]' | awk -F ':' '{print $1, $2}' )
     f=$(echo "$fnl" | awk '{print $1}')
     l=$(echo "$fnl" | awk '{print $2}')
-    devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c "+${l}" "$f" || true
+    devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c +${l} --file="$f" || true
 }
 
 is_file_type() {
@@ -495,7 +513,8 @@ bindkey -M vicmd '^X^R' scrnshot-sync
 bindkey -M emacs '^X^R' scrnshot-sync
 
 editzshrc() {
-   ( devour emacsclient -c -s "$EMACS_SOCKET_NAME" ~/.zshrc && cat ~/.zshrc | source /dev/stdin 2>/dev/null ) || return 1
+    emulate -L zsh
+   ( emacsclient -c -s "$EMACS_SOCKET_NAME" ~/.zshrc && cat ~/.zshrc | source /dev/stdin 2>/dev/null ) || return 1
    return
 }
 zle -N editzshrc

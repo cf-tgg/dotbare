@@ -11,10 +11,8 @@
 #     convert(1)    dunst(1)    setsid(1)    xclip(1)
 #
 
-
-
 while read -r file; do
-        case "$1" in
+    case "$1" in
         "w")  setbg "$file" & ;;
         "c")  [ -z "$destdir" ] && destdir="$(sed "s/#.*$//;/^\s*$/d" "${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-dirs" | awk '{print $2}' | dmenu -l 20 -i -p "Copy file(s) to where?" | sed "s|~|$HOME|g")"
 	      [ ! -d "$destdir" ] && notify-send "$destdir is not a directory, cancelled." && exit
@@ -79,5 +77,3 @@ while read -r file; do
         "L") [ -L "$file" ] && file=$(realpath "$file"); xdrag "$file" ; if [ -n "$(is_urljpg "$file")" ]; then is_urljpg "$file" | xclip -selection clipboard -in ; fi ;;
 	esac
 done
-
-# vim: ft=sh:ts=4:sw=4:sts=4:et:

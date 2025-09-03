@@ -138,6 +138,7 @@
         ".scroll-up-visible",
         ".TccjmKV6RraCaCw5L9gd",                 /* ddg feedback-prompt */
         ".c-avStickyVideo",
+        ".brz_msg_wall_body",                    /* LaPresse */
     ];
 
     const toggleable = [
@@ -195,6 +196,12 @@
         ".navbar",
         "footer",
         "header",
+        "#dropdown-nav-outer-wrapper",             /* W3School */
+        "#dropdown-nav-inner-wrapper",
+        "#googleSearch",
+        "#top-nav-bar",
+        ".topnavcontainer",
+        ".topnavbackground",
         ".bg-main.border-b-border.sticky.top-0",  /* DeepWiki */
         ".pointer-events-none.fixed.bottom-2",
         ".s-top-bar",
