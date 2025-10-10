@@ -117,3 +117,10 @@
   appname = "ssh-msg"
   max_icon_size = 192
   urgency = critical
+
+[qutebrowser]
+  appname = "qutebrowser"
+  max_icon_size = 96
+  urgency = normal
+
+

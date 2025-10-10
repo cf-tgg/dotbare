@@ -85,6 +85,8 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 #######################################################
 
 # Alias's for SSH
+alias pstree='pstree | nvim -'
+alias dwmhup='kill -HUP $(pidof dwm)'
 # alias SERVERNAME='ssh YOURWEBSITE.com -l USERNAME -p PORTNUMBERHERE'
 
 # Alias's to change the directory
@@ -210,7 +212,8 @@ alias docker-clean=' \
 
 alias cg='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias cgs="cg status | grep modified | awk '{print \$2}'"
-alias jy='ssh -Y -J rdg3'
+alias npstree='pstree | nvim -'
+alias dwmhup='kill -HUP $(pidof dwm)'
 
 cga() {
     /usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME status \

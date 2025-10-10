@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-09-01 03:27:11 cf>
+# Time-stamp: <2025-10-09 21:16:46 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #        __       _          _ _
 #   ___ / _|  ___| |__   ___| | |
@@ -10,7 +10,7 @@
 #
 #                      cf. [zshrc] ❯⟩
 
-autoload -U colors && colors
+autoload -U colors
 
 setopt prompt_subst
 
@@ -38,26 +38,58 @@ setopt autocd
 stty stop undef
 
 # OPTIONS
+setopt always_to_end          # When completing a word, move the cursor to the end of the word
+setopt append_history         # this is default, but set for share_history
+setopt auto_cd                # cd by typing directory name if it's not a command
+setopt auto_list              # automatically list choices on ambiguous completion
+setopt auto_menu              # automatically use menu completion
+setopt auto_pushd             # Make cd push each old directory onto the stack
+setopt completeinword         # If unset, the cursor is set to the end of the word
+setopt correct_all            # autocorrect commands
+setopt extended_glob          # treat #, ~, and ^ as part of patterns for filename generation
+setopt extended_history       # save each command's beginning timestamp and duration to the history file
+setopt glob_dots              # dot files included in regular globs
+setopt hash_list_all          # when command completion is attempted, ensure the entire  path is hashed
+setopt hist_expire_dups_first # # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt hist_find_no_dups      # When searching history don't show results already cycled through twice
+setopt hist_ignore_dups       # Do not write events to history that are duplicates of previous events
+setopt hist_ignore_space      # remove command line from history list when first character is a space
+setopt hist_reduce_blanks     # remove superfluous blanks from history items
+setopt hist_verify            # show command with history expansion to user before running it
+setopt histignorespace        # remove commands from the history when the first character is a space
+setopt inc_append_history     # save history entries as soon as they are entered
+setopt interactivecomments    # allow use of comments in interactive code (bash-style comments)
+setopt longlistjobs           # display PID when suspending processes as well
+setopt no_beep                # silence all bells and beeps
+setopt nocaseglob             # global substitution is case insensitive
+setopt nonomatch              ## try to avoid the 'zsh: no matches found...'
+setopt noshwordsplit          # use zsh style word splitting
+setopt notify                 # report the status of backgrounds jobs immediately
+setopt numeric_glob_sort      # globs sorted numerically
+setopt prompt_subst           # allow expansion in prompts
+setopt pushd_ignore_dups      # Don't push duplicates onto the stack
+setopt share_history          # share history between different instances of the shell
+
 HISTSIZE=100000
 SAVEHIST=100000
-HISTFILE="$HOME/.cache/zsh/history"
+HISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/history"
 HISTORY_IGNORE='(clear|pwd|exit|* —help|[bf]g *|less *|cd ..|cd -)'
 
-setopt BANG_HIST                 # Perform textual history expansion, csh-style, treating the character ‘!’ specially.
-setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;command' format.
-setopt INC_APPEND_HISTORY        # Write to the history file immediately, not when the shell exits.
-setopt SHARE_HISTORY             # Share history between all sessions.
-setopt HIST_EXPIRE_DUPS_FIRST    # Expire a duplicate event first when trimming history.
-setopt HIST_IGNORE_DUPS          # Do not record an event that was just recorded again.
-setopt HIST_IGNORE_ALL_DUPS      # Delete an old recorded event if a new event is a duplicate.
-setopt HIST_FIND_NO_DUPS         # Do not display a previously found event.
-setopt HIST_IGNORE_SPACE         # Do not record an event starting with a space.
-setopt HIST_SAVE_NO_DUPS         # Do not write a duplicate event to the history file.
-setopt HIST_VERIFY               # Do not execute immediately upon history expansion.
-setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks from each command line being added to the history list.
-setopt APPEND_HISTORY            # append to history file
-setopt HIST_NO_STORE             # Don't store history commands
-# setopt HIST_NO_FUNCTIONS         # Don't store function definitions
+# setopt BANG_HIST                 # Perform textual history expansion, csh-style, treating the character ‘!’ specially.
+# setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;command' format.
+# setopt INC_APPEND_HISTORY        # Write to the history file immediately, not when the shell exits.
+# setopt SHARE_HISTORY             # Share history between all sessions.
+# setopt HIST_EXPIRE_DUPS_FIRST    # Expire a duplicate event first when trimming history.
+# setopt HIST_IGNORE_DUPS          # Do not record an event that was just recorded again.
+# setopt HIST_IGNORE_ALL_DUPS      # Delete an old recorded event if a new event is a duplicate.
+# setopt HIST_FIND_NO_DUPS         # Do not display a previously found event.
+# setopt HIST_IGNORE_SPACE         # Do not record an event starting with a space.
+# setopt HIST_SAVE_NO_DUPS         # Do not write a duplicate event to the history file.
+# setopt HIST_VERIFY               # Do not execute immediately upon history expansion.
+# setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks from each command line being added to the history list.
+# setopt APPEND_HISTORY            # append to history file
+# setopt HIST_NO_STORE             # Don't store history commands
+# # setopt HIST_NO_FUNCTIONS         # Don't store function definitions
 
 # path check
 export PATH="$(echo "$PATH" | awk -v RS=: -v ORS=: '!a[$1]++' | sed 's/:$//')"
@@ -69,19 +101,41 @@ for f in "${XDG_CONFIG_HOME:-$HOME/.config}/shell"/{aliases,aliasrc,functions,sh
    fi
    unset f
 done
-
-ralias() { gpg2 --quiet --no-tty --for-your-eyes-only --decrypt "$(pass ralias)" 2>/dev/null | source /dev/stdin ; }
+ralias() { gpg2 -d "$(pass rals)" | source /dev/stdin ; }
 
 # Ensure emacs is running the server
 # [ -e "$EMACS_SOCKET_NAME" ] || EMACS_SOCKET_NAME=${EMACS_SERVER_FILE:-"$XDG_RUNTIME_DIR/emacs/server"}
 # [ -z "$(pidof -xs emacs)" ] && emacs -f server-start >/dev/null 2>&1
 
 # Completion
-
 [ -z "$ZDOTDIR" ] && ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
 
 # Base comp dir init
-fpath=($ZDOTDIR $fpath)
+fpath=(
+    $ZDOTDIR
+    /usr/local/share/zsh/site-functions
+    /usr/share/zsh/site-functions
+    /usr/share/zsh/functions/Calendar
+    /usr/share/zsh/functions/Chpwd
+    /usr/share/zsh/functions/Completion
+    /usr/share/zsh/functions/Completion/Base
+    /usr/share/zsh/functions/Completion/Linux
+    /usr/share/zsh/functions/Completion/Unix
+    /usr/share/zsh/functions/Completion/X
+    /usr/share/zsh/functions/Completion/Zsh
+    /usr/share/zsh/functions/Exceptions
+    /usr/share/zsh/functions/MIME
+    /usr/share/zsh/functions/Math
+    /usr/share/zsh/functions/Misc
+    /usr/share/zsh/functions/Newuser
+    /usr/share/zsh/functions/Prompts
+    /usr/share/zsh/functions/TCP
+    /usr/share/zsh/functions/VCS_Info
+    /usr/share/zsh/functions/VCS_Info/Backends
+    /usr/share/zsh/functions/Zftp
+    /usr/share/zsh/functions/Zle
+    /usr/share/zsh/plugins/fast-syntax-highlighting
+)
 
 # Load zsh completion
 autoload -U compinit
@@ -116,10 +170,11 @@ bindkey -M visual S add-surround
 
 autoload -Uz run-help
 alias help='run-help'
-
 # Wikiman plugin
-source /usr/share/wikiman/widgets/widget.zsh
-bindkey '^X^_' _wikiman_widget
+[ -f "/usr/share/wikiman/widgets/widget.zsh" ] && {
+    source /usr/share/wikiman/widgets/widget.zsh
+    bindkey '^X^_' _wikiman_widget
+}
 
 # Use vim keys in tab completion menu
 bindkey -M menuselect 'h' vi-backward-char
@@ -228,10 +283,14 @@ cleanws_lbuffer() {
 copy_lbuffer() {
   emulate -L zsh
   local buf="${LBUFFER}"
-  export lbuf="$buf"
-  [ -n "$DISPLAY" ] || return
-  if echo "$lbuf" | xclip -in -selection clipboard 2>/dev/null ; then
-      [ -x "$(command -v notify-send)" ] && notify-send -t 1000 "[copy_buffer]" "$lbuf"
+  [ -n "$buf" ] || return
+  export LBUF="$buf"
+  if [ -n "$DISPLAY" ]; then
+      if echo "$buf" | xclip -in -selection clipboard 2>/dev/null ; then
+          [ -x "$(command -v notify-send)" ] && notify-send -t 1000 "[copy_buffer]" "$buf"
+      fi
+  else
+      true
   fi
   return 0
 }
@@ -331,7 +390,7 @@ is_alias_type() {
     aln=$(grep -rn "${al}='" ~/.config/(shell|zsh) | grep -vE '[~#]' | awk -F ':' '{print $1, $2}')
     f=$(echo "$fnl" | awk '{print $1}')
     l=$(echo "$fnl" | awk '{print $2}')
-    devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c +${l} --file="$f" || true
+    devour emacsclient -c -s "$EMACS_SOCKET_NAME" --alternate-editor="" +${l} --file="$f" || true
 }
 
 is_fn_type() {
@@ -339,11 +398,11 @@ is_fn_type() {
     fnl=$(grep -rn "${fn}() " ~/.config/(shell|zsh) | grep -vE '[~#]' | awk -F ':' '{print $1, $2}' )
     f=$(echo "$fnl" | awk '{print $1}')
     l=$(echo "$fnl" | awk '{print $2}')
-    devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c +${l} --file="$f" || true
+    devour emacsclient -c -s "$EMACS_SOCKET_NAME" --alternate-editor="" +${l} --file="$f" || true
 }
 
 is_file_type() {
-    devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c "$(is_file_type "$t")" || true
+    devour emacsclient -c -s "$EMACS_SOCKET_NAME" --alternate-editor="" "$(is_file_type "$t")" || true
 }
 
 emtype() {
@@ -445,20 +504,20 @@ bindkey '^[+' split-line
 # }
 # zle -N fzf_cd
 
-# __fzfmenu__() {
-#   local cmd="fd -tf --max-depth=1"
-#   eval $cmd | ~/.local/bin/fzfmenu
-# }
-# __fzf-menu__() {
-#   LBUFFER="${LBUFFER}$(__fzfmenu__)"
-#   local ret=$?
-#   zle reset-prompt
-#   return $ret
-# }
-# zle     -N    __fzf-menu__
-# bindkey -M emacs '^T^G' __fzf-menu__
-# bindkey -M vicmd '^T^G' __fzf-menu__
-# bindkey -M viins '^T^G' __fzf-menu__
+__fzfmenu__() {
+  local cmd="fd -tf --max-depth=1"
+  eval $cmd | ~/.local/bin/fzfmenu
+}
+__fzf-menu__() {
+  LBUFFER="${LBUFFER}$(__fzfmenu__)"
+  local ret=$?
+  zle reset-prompt
+  return $ret
+}
+zle -N __fzf-menu__
+bindkey -M emacs '^T^G' __fzf-menu__
+bindkey -M vicmd '^T^G' __fzf-menu__
+bindkey -M viins '^T^G' __fzf-menu__
 
 # pick_torrent() LBUFFER="transmission-remote -t ${$({
 #     for torrent in ${(f)"$(transmission-remote -l)"}; do
@@ -514,8 +573,8 @@ bindkey -M emacs '^X^R' scrnshot-sync
 
 editzshrc() {
     emulate -L zsh
-   ( emacsclient -c -s "$EMACS_SOCKET_NAME" ~/.zshrc && cat ~/.zshrc | source /dev/stdin 2>/dev/null ) || return 1
-   return
+    ( emacsclient -c -s "$EMACS_SOCKET_NAME" ~/.zshrc && cat ~/.zshrc | source /dev/stdin 2>/dev/null ) || return 1
+    return 0
 }
 zle -N editzshrc
 bindkey '^X^Z' editzshrc
@@ -537,9 +596,7 @@ zle -N xswal-select
 [[ -z "$INSIDE_EMACS" ]] && bindkey '^X^G' xswal-select
 
 sshop() {
-    emulate -L zsh
-    t=$(grep -iE '^(host)\s? ' ~/.ssh/config| sed 's/^Host //;s/[[:space:]]//g' | fzf)
-    ( [ -n "$t" ] && ssh "${t}" && return 0 ) || return 1
+    grep -iE '^(host)\s? ' ~/.ssh/config | sed 's/^Host //;s/[[:space:]]//g' | fzf | xargs -r ssh
 }
 zle -N sshop
 bindkey -M viins '^X^S' sshop
@@ -547,30 +604,43 @@ bindkey -M vicmd '^X^S' sshop
 bindkey -M emacs '^X^S' sshop
 
 # plugin sourcing
-source /usr/share/nvm/init-nvm.sh
+[ /usr/share/nvm/init-nvm.sh ] && source /usr/share/nvm/init-nvm.sh
+[ -f "$HOME/.local/share/cargo/env" ] && . "$HOME/.local/share/cargo/env"
 
-. "$HOME/.local/share/cargo/env"
-
-# eval "$(zoxide init zsh)"
 # eval "$(luarocks  path --bin)"
 
 # yazi
-export YAZI_CONFIG_HOME="$HOME/.config/yazi"
-export YAZI_FILE_ONE="$(which file)"
-export YAZI_ZOXIDE_OPTS="--recent"
+if [ -x $(command -v yazi) ]; then
+    # eval "$(zoxide init zsh)"
+    export YAZI_CONFIG_HOME="$HOME/.config/yazi"
+    export YAZI_FILE_ONE="$(which file)"
+    export YAZI_ZOXIDE_OPTS="--recent"
 
-y() {
-    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-    yazi "$@" --cwd-file="$tmp"
-    if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-        builtin cd -- "$cwd" ;
-    fi
-    rm -f -- "$tmp" >/dev/null 2>&1
+    y() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+        yazi "$@" --cwd-file="$tmp"
+        if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            builtin cd -- "$cwd" ;
+        fi
+        rm -f -- "$tmp" >/dev/null 2>&1
+    }
+    zle -N y
+    bindkey -M vicmd '^X^Y' y
+    bindkey -M viins '^X^Y' y
+    bindkey -M emacs '^X^Y' y
+fi
+
+__fzf-cmd-menu__() {
+   cat ~/Templates/sh/dwmcmds | fzf --delimiter="\t" --with-nth=1 --multi  | awk -F "\t" '{print $2}' |\
+       while read -r cmd; do
+           eval "$cmd" || continue
+       done
 }
-zle -N y
-bindkey -M vicmd '^X^Y' y
-bindkey -M viins '^X^Y' y
-bindkey -M emacs '^X^Y' y
+zle -N __fzf-cmd-menu__
+bindkey '^[d' __fzf-cmd-menu__
+bindkey -M emacs '^[d' __fzf-cmd-menu__
+bindkey -M viins '^[d' __fzf-cmd-menu__
+bindkey -M vicmd '^[d' __fzf-cmd-menu__
 
 # Emacs line-editing (not using `bindkey -e' makes for a hybrid vi-emacs keymap)
 # bindkey -e
@@ -674,6 +744,7 @@ export PATH="$PATH:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin"
 
 # Pre-export the current cmdline
 preexec() { export LAST_CMD="$1" ; }
+colors
 
 # Fast syntax highlighting
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null

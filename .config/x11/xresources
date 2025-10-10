@@ -1,6 +1,7 @@
 !  *.alpha: 0.98
 *.font: Iosevka Nerd Font:size=10:antialias=true:autohint=true
 XTerm*disallowedWindowOps: 20,21,SetXprop
+xterm*decTerminalID :   vt340
 
 Xcursor.theme: Vanilla-DMZ-AA
 Xcursor.size: 96
@@ -15,14 +16,14 @@ Zathura.window.background.alpha: 0.6
 !! HiDPI
 Xft.dpi: 204
 ! Xft.dpi: 288
-Xft.autohint: 1
-Xft.lcdfilter: lcddefault
-Xft.hintstyle: hintslight
-Xft.antialias: 1
-Xft.hinting: 1
-Xft.rgba: rgb
-Xft.font: CaskaydiaCove Nerd Font Propo:style=Book
-Xft.theme: Adwaita:dark
+Xft.autohint:1
+Xft.lcdfilter:lcddefault
+Xft.hintstyle:hintslight
+Xft.antialias:1
+Xft.hinting:1
+Xft.rgba:rgb
+Xft.font:CaskaydiaCove Nerd Font Propo:style=Book
+Xft.theme:Adwaita:dark
 
 !!  Emacs.alpha: 0.9
 emacs.verticalScrollBars:off
@@ -30,11 +31,11 @@ emacs.menuBar:off
 emacs.toolBar:0
 emacs.tabBar:0
 emacs.useXIM:off
-emacs.bitmapIcon:off
+emacs.bitmapIcon:on
 emacs.minibuffer:minibuffer
 
-!  polybar-exwmbar_*.background: #181818
-!  polybar*.background.alpha: 0.9
+! polybar-exwmbar_*.background: #181818
+! polybar*.background.alpha: 0.9
 
 !! gruber-darker palette
 !  gruber-darker-fg        #e4e4ef

@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- mode: sh; sh-shell: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-08-17 06:01:36 cf>
+# Time-stamp: <2025-10-08 22:01:37 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 # shellcheck disable=SC2155
 
@@ -30,8 +30,8 @@ export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
 export INPUTRC="${XDG_CONFIG_HOME:-$HOME/.config}/shell/inputrc"
 export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
 export XINITRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc"
-export STATUSBAR="dwmblocks"
-export DWMBLOCKS="$XDG_RUNTIME_DIR/dwmblocks.pid"
+export STATUSBAR="dwmblock"
+# export DWMBLOCKS="$XDG_RUNTIME_DIR/dwmblocks.pid"
 export EXWMRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc.exwm"
 # export XAUTHORITY="${XDG_RUNTIME_DIR}/Xauthority"
 
@@ -51,6 +51,7 @@ export MOZ_USE_XINPUT2=1
 export GDK_SCALE=1
 export GTK_THEME="Adwaita-dark"
 export MAIL="$HOME/.local/mail"
+
 export MBSYNCRC="${XDG_CONFIG_HOME:-$HOME/.config}/mu4e/mbsyncrc"
 export WGETRC="${XDG_CONFIG_HOME:-$HOME/.config}/wget/wgetrc"
 export WINEPREFIX="${XDG_DATA_HOME:-$HOME/.local/share}/wineprefixes/default"
@@ -72,6 +73,8 @@ export SDCV_DATA_DIR="/usr/share/stardict/dic/"
 export BESCHERELLE_DIR="$HOME/Documents/Bescherelle"
 export MPVQ_PLAYLIST="$HOME/.cache/mpvq/mpvq.m3u8"
 export SURFRAW="/usr/lib/surfraw"
+export SURFRAW_text_browser="$HOME/.local/ewww-browse"
+
 export NODE_PATH="${XDG_DATA_HOME:-$HOME/.local/share}/node_modules"
 export NVM_BIN="${XDG_DATA_HOME:-$HOME/.local/share}/.nvm/versions/node/v22.6.0/bin"
 export NVM_INC="${XDG_DATA_HOME:-$HOME/.local/share}/.nvm/versions/node/v22.6.0/include/node"
@@ -91,7 +94,6 @@ export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
 export GOMODCACHE="${XDG_CACHE_HOME:-$HOME/.cache}/go/mod"
 export GOBIN="${XDG_DATA_HOME:-$HOME/.local/share}/go/bin"
 export GO111MODULE="on"
-export NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs"
 export CARGO_HOME="${XDG_DATA_HOME}/cargo"
 export CARGO_BIN="$CARGO_HOME/bin"
 ###{{{
@@ -107,7 +109,7 @@ export LESSOPEN="| /usr/bin/highlight -O ansi %s 2>/dev/null"
 #}}}
 
 export FZF_DEFAULT_OPTS="--ansi --layout=reverse --height='100%' --border --color"
-
+export NIX_PATH="nixpkgs=$HOME/.local/state/nix/profiles/channels/nixpkgs"
 export INFOPATH="/usr/share/info:/usr/local/share/info:/home/cf/.local/share/info:/home/cf/.emacs.d/info"
 export INFO_DIR="${INFOPATH}:${XDG_DATA_HOME:-$HOME/.local/share}/info"
 export INFO_INIT_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/shell/infoinitrc"
@@ -123,6 +125,7 @@ export GPG_TTY
 SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 export SSH_AUTH_SOCK
 export ULOGS="$HOME/.local/var/log"
+# export SVDIR="$HOME/.local/service"
 
 logins() {
     l="${ULOGS}/logins.log"
@@ -137,11 +140,17 @@ logins() {
 
 [ -t 1 ] && logins >/dev/null 2>&1
 [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/kbdbin/shortcutrc" ] && setsid -f shortcutrc >/dev/null 2>&1
-( [ -d "$HOME/Pictures/wallpapers" ] && find "$HOME/Pictures/wallpapers" -type f -exec realpath {} \; | shuf > "$HOME/.cache/walfeh_history" ) || true
+( [ -d "$HOME/Pictures/wallpapers" ] &&  find "$HOME/Pictures/wallpapers" -type f -exec realpath {} \; | shuf > "$XDG_CACHE_HOME/walfeh_history" ) || true
 # [ -f "$HOME/.local/bin/mpvq/mpvq_env" ] && . "$HOME/.local/bin/mpvq/mpvq_env" >/dev/null 2>&1
+
 ttyno=${GPG_TTY##*/}
 ttymap="${XDG_CONFIG_HOME:-$HOME/config}/tty.kmap"
 [ ! -e "$ttymap" ] && printf 'keycode 1 = Caps_Lock\nkeycode 58 = Escape\n' > "$ttymap"
+
+# Start user-level runit supervisor if not running
+if ! pgrep -u "$USER" runsvdir >/dev/null 2>&1 ; then
+    runsvdir "$HOME/.local/service" </dev/null >/dev/null 2>&1 &
+fi
 
 if [ -z "$DISPLAY" ] && [ "$ttyno" = "tty1" ] && [ -z "$SSH_CLIENT" ]; then
     exec startx "$XINITRC"

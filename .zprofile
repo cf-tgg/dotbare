@@ -1,1 +1,1 @@
-.config/shell/profile
+/home/cf/.config/shell/profile

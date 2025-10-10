@@ -12,7 +12,6 @@
  */
 
 (() => {
-
     // Hide select elements
     function hideElements(selectors) {
         selectors.forEach(selector => {
@@ -39,18 +38,32 @@
         });
     }
 
+    let highestZ = Math.max(
+        1,
+        ...Array.from(document.querySelectorAll(".draggable"))
+            .map(e => parseInt(getComputedStyle(e).zIndex) || 0)
+    );
+
+    function bringToFront(el) {
+        highestZ += 1;
+        el.style.zIndex = highestZ;
+    }
+
     // Make select elements draggable
     function makeDraggable(selectors) {
         selectors.forEach(selector => {
             const elements = document.querySelectorAll(selector);
             elements.forEach(element => {
-                element.style.position = "fixed";
-                element.style.cursor = "move";
+                element.style.position = "absolute";
+                element.style.cursor = "grab";
+                element.classList.add("draggable");
 
                 let offsetX = 0, offsetY = 0, isDragging = false;
 
                 element.addEventListener("mousedown", e => {
                     isDragging = true;
+                    bringToFront(element);
+                    element.style.cursor = "grabbing";
                     offsetX = e.clientX - element.offsetLeft;
                     offsetY = e.clientY - element.offsetTop;
                     document.body.style.userSelect = "none";
@@ -58,22 +71,53 @@
 
                 document.addEventListener("mousemove", e => {
                     if (!isDragging) return;
+                    element.classList.add("dragging");
                     element.style.left = (e.clientX - offsetX) + "px";
                     element.style.top = (e.clientY - offsetY) + "px";
                 });
 
                 document.addEventListener("mouseup", () => {
                     isDragging = false;
+                    element.style.cursor = "grab";
+                    element.classList.remove("dragging");
                     document.body.style.userSelect = "";
                 });
             });
         });
     }
 
+    function exemptImage(el) {
+        ["dragover", "drop", "mousedown", "pointerdown", "focus"].forEach(type => {
+            el.addEventListener(type, function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }, { passive: false });
+        });
+    }
+
+    document.querySelectorAll("img.img").forEach(exemptImage);
+
+    const observer = new MutationObserver(muts => {
+        muts.forEach(m => {
+            m.addedNodes.forEach(node => {
+                if (node.nodeType === 1 && node.matches("img.img")) {
+                    exemptImage(node);
+                }
+            });
+        });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
     const draggables = [
         "#vector-page-titlebar-toc",
         ".toggleButton",
         ".vector-dropdown.vector-main-menu-dropdown",
+        "div.msg-parts-container",
+        ".canvas-avatar",
+        "div#thread-bottom-container",
+        "#vector-page-titlebar-toc-label",      /* Wikipedia TOC sticky widget */
+        "#archnavbar",                          /* archwiki */
+        "mws-message-compose",
     ];
 
     const blacklist = [
@@ -142,7 +186,6 @@
     ];
 
     const toggleable = [
-        "#vector-page-titlebar-toc-label",      /* Wikipedia TOC sticky widget */
         "#secondary-nav-component",             /* RedHatSecondary Nav */
         "#partial-discussion-sidebar",
         ".OverviewRepoFiles-module__Box_3--Bi2jM",
@@ -183,7 +226,6 @@
         "#right",
         "#spacemyfooter",
         "#sidebar",
-        "#archnavbar",                            /* archwiki */
         ".footer",
         ".header",
         "#left-sidebar",
@@ -212,6 +254,15 @@
         ".bh.ww.ab.c.q.ic.wx.lq.wy",
         ".bg-\\[\\#2c9d30\\].z-\\[11\\].text-sm.max-lg\\:sticky.top-0.text-white.flex.items-center.h-\\(--nav-1-height\\).\\[\\&_a\\]\\:hover\\:underline",  /* tutorialpoint */
         ".h-\\(--nav-2-height\\).z-\\[11\\].sticky.bg-white.top-\\(--nav-1-height\\).lg\\:top-0.px-3.flex.items-center.border-b.border-gray-300",
+        ".social-share-sticky-menu__wrapper",     /* NetworkWorld */
+        ".branded-header",                        /* gglMsg */
+        "mws-header.header",
+        "mws-message-compose.ng-tns-c3392202998-1.ng-star-inserted",
+        "mws-conversations-list",
+        "mws-main-nav.main-nav",
+        "div[role=\"navigation\"]",
+        "div.xfpmyvw.x1u998qt.x1vjfegm",
+        "div.compose-container",
     ];
 
     hideElements(blacklist);
