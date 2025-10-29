@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:norl:et:
-# Time-stamp: <2025-09-08 03:02:27 cf>
+# Time-stamp: <2025-10-19 17:38:16 cf>
 #       _          _ _  __
 #   ___| |__   ___| | |/ _|_ __
 #  / __| '_ \ / _ \ | | |_| '_  \
@@ -9,7 +9,31 @@
 #
 #                        ~shellfn
 
+
+# common text procedures
+cat_tr_loweraz() { cat | \tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ; } ; alias lowaz='cat_tr_loweraz'
+cat_grep_digit() { cat | \grep -E '[[:digit:]]'  ; } ; alias onlyd='cat_grep_digit'
+cat_grep_alnum() { cat | \grep -E '[[:alnum:]]'  ; } ; alias alnum='cat_grep_alnum'
+sed_no_wspaces() { cat | \sed 's/[[:space:]]//g' ; } ; alias nospc='sed_no_wspaces'
+
+# switch monitor input source
+sendsc() {
+    c=$1 || c=$(hdmi_toggle)
+    if ! ddcutil setvcp 60 $c >/dev/null 2>&1 ; then
+        [ $c -le 3 ] && [ $c -gt 0 ] || { printf '[WARNING] unexpected value for VAR: c=${c}\n[INFO] correcting\t...' ; c=1 ; printf '\tdone\n[INFO] c = %s' "$c" ; }
+        for d in dg3 dg3s rdg3 ; do
+            if ssh -o BatchMode=yes -o ConnectTimeout=5 -o ConnectionAttempts=1 -n "$d" "~/.local/bin/sys/msirc -i ${c}" >/dev/null 2>&1 ; then
+                break;
+            fi
+            continue
+        done
+    else
+        return 1
+    fi
+}
+
 mkd() { for d in "$@"; do  mkdir -pv "$d" ; done ; }
+
 mkcd() { d="$1"; mkdir -pv "$d" && cd "$d" || return 1 ; return 0 ; }
 cd() {
     t="$1"
@@ -29,6 +53,30 @@ try_exec() {
     echo "Trying shell $1"
     type "$1" > /dev/null 2>&1 && exec "$@"
 }
+
+errnot() {
+    progn=$0
+    title=$1
+    [ -z $NOTIFY ] && [ -x "$(command -v notify-send)" ] && NOTIFY=1 || NOTIFY=${NOTIFY:-0}
+    [ $# -eq 2 ] && body=$2 || body=$(echo "$*" | awk -F "$1 " '{print $2}')
+    if [ -n "$progn" ] && [ -n "$title" ] && [ -n "$body" ]; then
+        [ -t 1 ] && printf '[ERROR] %s: %s: %s\n' "$progn" "$title" "$body" >&2 || return 1
+        [ $NOTIFY -eq 1 ] && {
+            if ! notify-send "[ERROR] $progn $title" "$body" 2>/dev/null ; then
+                redunst && notify-send "[ERROR] $progn $title" "$body" || return 1
+            fi
+        }
+    else
+        [ -t 1 ] && printf '[ERROR] %s: %s\n' "$0" "$*" >&2 || return 1
+        [ $NOTIFY -eq 1 ] && {
+            if ! notify-send "[ERROR] $0" "$*" 2>/dev/null ; then
+                redunst && notify-send "[ERROR] $0" "$*" || return 1
+            fi
+        }
+    fi
+    return 0
+}
+
 
 log() {
     ts=$(date +"%F_%H%M-%S")
@@ -636,6 +684,17 @@ svdown() {
 }
 
 # basic media editing helpers
+movsrt() {
+    v=$1
+    s=$2
+    [ -f "$v" ] || { echo "[ERROR] file: could not find $v" >&2 ; return 1 ; }
+    [ -f "$s" ] || { echo "[ERROR] file: could not find $s" >&2 ; return 1 ; }
+    [ ${v##*.} = "mp4" ] || { echo "[ERROR] expected $v mp4 extension" >&2 ; return 1 ; }
+    [ ${s##*.} = "srt" ] || { echo "[ERROR] expected $s to have srt extension" >&2 ; return 1 ; }
+    esrt "$v" "$s" && mv -vf out.mp4 "$v" && mv -vf "$v" ~/Videos/mov/ && mv -vf "$s" ~/Videos/mov/.srt/
+    return 0
+}
+
 rmsound() {
     input="$1"
     output="no-sound-$1"

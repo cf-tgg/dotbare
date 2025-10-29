@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # -*- mode: sh; -*- vim: ft=sh:ts=2:sw=2:et:
-# Time-stamp: <2025-10-09 21:16:46 cf>
+# Time-stamp: <2025-10-26 00:21:31 cf>
 # Box: cf [Linux 6.15.8-zen1-1-zen x86_64 GNU/Linux]
 #        __       _          _ _
 #   ___ / _|  ___| |__   ___| | |
@@ -38,37 +38,37 @@ setopt autocd
 stty stop undef
 
 # OPTIONS
-setopt always_to_end          # When completing a word, move the cursor to the end of the word
-setopt append_history         # this is default, but set for share_history
-setopt auto_cd                # cd by typing directory name if it's not a command
-setopt auto_list              # automatically list choices on ambiguous completion
-setopt auto_menu              # automatically use menu completion
-setopt auto_pushd             # Make cd push each old directory onto the stack
-setopt completeinword         # If unset, the cursor is set to the end of the word
-setopt correct_all            # autocorrect commands
-setopt extended_glob          # treat #, ~, and ^ as part of patterns for filename generation
-setopt extended_history       # save each command's beginning timestamp and duration to the history file
-setopt glob_dots              # dot files included in regular globs
-setopt hash_list_all          # when command completion is attempted, ensure the entire  path is hashed
-setopt hist_expire_dups_first # # delete duplicates first when HISTFILE size exceeds HISTSIZE
-setopt hist_find_no_dups      # When searching history don't show results already cycled through twice
-setopt hist_ignore_dups       # Do not write events to history that are duplicates of previous events
-setopt hist_ignore_space      # remove command line from history list when first character is a space
-setopt hist_reduce_blanks     # remove superfluous blanks from history items
-setopt hist_verify            # show command with history expansion to user before running it
-setopt histignorespace        # remove commands from the history when the first character is a space
-setopt inc_append_history     # save history entries as soon as they are entered
-setopt interactivecomments    # allow use of comments in interactive code (bash-style comments)
-setopt longlistjobs           # display PID when suspending processes as well
-setopt no_beep                # silence all bells and beeps
-setopt nocaseglob             # global substitution is case insensitive
-setopt nonomatch              ## try to avoid the 'zsh: no matches found...'
-setopt noshwordsplit          # use zsh style word splitting
-setopt notify                 # report the status of backgrounds jobs immediately
-setopt numeric_glob_sort      # globs sorted numerically
-setopt prompt_subst           # allow expansion in prompts
-setopt pushd_ignore_dups      # Don't push duplicates onto the stack
-setopt share_history          # share history between different instances of the shell
+setopt ALWAYS_TO_END          # When completing a word, move the cursor to the end of the word
+setopt APPEND_HISTORY         # this is default, but set for share_history
+setopt AUTO_CD                # cd by typing directory name if it's not a command
+setopt AUTO_LIST              # automatically list choices on ambiguous completion
+setopt AUTO_MENU              # automatically use menu completion
+# setopt AUTO_PUSHD             # Make cd push each old directory onto the stack
+setopt COMPLETEINWORD         # If unset, the cursor is set to the end of the word
+# setopt CORRECT_ALL            # autocorrect commands
+setopt EXTENDED_GLOB          # treat #, ~, and ^ as part of patterns for filename generation
+setopt EXTENDED_HISTORY       # save each command's beginning timestamp and duration to the history file
+setopt GLOB_DOTS              # dot files included in regular globs
+setopt HASH_LIST_ALL          # when command completion is attempted, ensure the entire  path is hashed
+setopt HIST_EXPIRE_DUPS_FIRST # # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt HIST_FIND_NO_DUPS      # When searching history don't show results already cycled through twice
+setopt HIST_IGNORE_DUPS       # Do not write events to history that are duplicates of previous events
+setopt HIST_IGNORE_SPACE      # remove command line from history list when first character is a space
+setopt HIST_REDUCE_BLANKS     # remove superfluous blanks from history items
+setopt HIST_VERIFY            # show command with history expansion to user before running it
+setopt HISTIGNORESPACE        # remove commands from the history when the first character is a space
+setopt INC_APPEND_HISTORY     # save history entries as soon as they are entered
+setopt INTERACTIVECOMMENTS    # allow use of comments in interactive code (bash-style comments)
+setopt LONGLISTJOBS           # display PID when suspending processes as well
+setopt NO_BEEP                # silence all bells and beeps
+setopt NOCASEGLOB             # global substitution is case insensitive
+setopt NONOMATCH              ## try to avoid the 'zsh: no matches found...'
+setopt NOSHWORDSPLIT          # use zsh style word splitting
+setopt NOTIFY                 # report the status of backgrounds jobs immediately
+setopt NUMERIC_GLOB_SORT      # globs sorted numerically
+setopt PROMPT_SUBST           # allow expansion in prompts
+# setopt PUSHD_IGNORE_DUPS      # Don't push duplicates onto the stack
+setopt SHARE_HISTORY          # share history between different instances of the shell
 
 HISTSIZE=100000
 SAVEHIST=100000
@@ -101,7 +101,7 @@ for f in "${XDG_CONFIG_HOME:-$HOME/.config}/shell"/{aliases,aliasrc,functions,sh
    fi
    unset f
 done
-ralias() { gpg2 -d "$(pass rals)" | source /dev/stdin ; }
+ralias() { gpg2 -d "$(pass rals)" | source /dev/stdin >/dev/null 2>&1 ; }
 
 # Ensure emacs is running the server
 # [ -e "$EMACS_SOCKET_NAME" ] || EMACS_SOCKET_NAME=${EMACS_SERVER_FILE:-"$XDG_RUNTIME_DIR/emacs/server"}
@@ -150,8 +150,9 @@ compdef _man ve
 compdef _dsurfraw dsurfraw
 compdef _exifjpg exifjpg
 compdef _tts tts
+compdef _tailscale tailscale
 
-# vi binds
+# vi bindings
 bindkey -v
 export KEYTIMEOUT=1
 source <(fzf --zsh)
@@ -175,6 +176,27 @@ alias help='run-help'
     source /usr/share/wikiman/widgets/widget.zsh
     bindkey '^X^_' _wikiman_widget
 }
+
+autoload -Uz add-zsh-hook
+DIRSTACKFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/dirs"
+if [[ -f "$DIRSTACKFILE" ]] && (( ${#dirstack} == 0 )); then
+	dirstack=("${(@f)"$(< "$DIRSTACKFILE")"}")
+	[[ -d "${dirstack[1]}" ]] && cd -- "${dirstack[1]}"
+fi
+chpwd_dirstack() {
+	print -l -- "$PWD" "${(u)dirstack[@]}" > "$DIRSTACKFILE"
+}
+add-zsh-hook -Uz chpwd chpwd_dirstack
+
+DIRSTACKSIZE='20'
+
+setopt AUTO_PUSHD PUSHD_SILENT PUSHD_TO_HOME
+
+## Remove duplicate entries
+setopt PUSHD_IGNORE_DUPS
+
+## This reverts the +/- operators.
+setopt PUSHD_MINUS
 
 # Use vim keys in tab completion menu
 bindkey -M menuselect 'h' vi-backward-char
@@ -287,10 +309,13 @@ copy_lbuffer() {
   export LBUF="$buf"
   if [ -n "$DISPLAY" ]; then
       if echo "$buf" | xclip -in -selection clipboard 2>/dev/null ; then
-          [ -x "$(command -v notify-send)" ] && notify-send -t 1000 "[copy_buffer]" "$buf"
+          [ -x "$(command -v notify-send)" ] && {
+            notify-send -t 1000 "[copy_buffer]" "$buf"
+          } || {
+            redunst
+            notify-send -t 1000 "[copy_buffer]" "$buf" || return 1
+          }
       fi
-  else
-      true
   fi
   return 0
 }
@@ -402,7 +427,8 @@ is_fn_type() {
 }
 
 is_file_type() {
-    devour emacsclient -c -s "$EMACS_SOCKET_NAME" --alternate-editor="" "$(is_file_type "$t")" || true
+               []
+ devour emacsclient -c -s "$EMACS_SOCKET_NAME" --alternate-editor="" "$(is_file_type "$t")" || true
 }
 
 emtype() {
@@ -411,13 +437,9 @@ emtype() {
     case "$wt" in
         'alias') is_alias_type "$t" || return 1 ;;
         'function') is_fn_type "$t" || return 1 ;;
-        *) if ! is_file_type "$t" ; then
-               devour emacsclient -s "$EMACS_SOCKET_NAME" -a "" -c -n "$t"  || true
-           else
-               return 1
-           fi
-           ;;
+        *) ( [ ! -f "$t" ] 2>/dev/null && f="$t" ) || return 1 ;;
     esac
+    [ -t 1 ] && devour emacsclient -s "$EMACS_SOCKET_NAME" --alternate-editor="" -cn "$t"  || true
     return 0
 }
 zle -N emtype
